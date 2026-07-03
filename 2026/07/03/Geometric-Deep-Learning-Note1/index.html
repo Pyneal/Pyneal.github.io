@@ -1,0 +1,2655 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>Geometric Deep Learning Note1 | 悟空的小站</title><meta name="author" content="Pyneal"><meta name="copyright" content="Pyneal"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="读书笔记——从高维学习困境出发，梳理对称性、形变稳定性与尺度分离三大几何先验，导出 GDL 蓝图及其统一框架。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Geometric Deep Learning Note1">
+<meta property="og:url" content="https://pyneal.github.io/2026/07/03/Geometric-Deep-Learning-Note1/index.html">
+<meta property="og:site_name" content="悟空的小站">
+<meta property="og:description" content="读书笔记——从高维学习困境出发，梳理对称性、形变稳定性与尺度分离三大几何先验，导出 GDL 蓝图及其统一框架。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pyneal.github.io/img/Geometric%20Deep%20Learning%20Note1.png">
+<meta property="article:published_time" content="2026-07-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-07-03T15:18:23.791Z">
+<meta property="article:author" content="Pyneal">
+<meta property="article:tag" content="数学">
+<meta property="article:tag" content="科学">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pyneal.github.io/img/Geometric%20Deep%20Learning%20Note1.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Geometric Deep Learning Note1",
+  "url": "https://pyneal.github.io/2026/07/03/Geometric-Deep-Learning-Note1/",
+  "image": "https://pyneal.github.io/img/Geometric%20Deep%20Learning%20Note1.png",
+  "datePublished": "2026-07-02T16:00:00.000Z",
+  "dateModified": "2026-07-03T15:18:23.791Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Pyneal",
+      "url": "https://pyneal.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://pyneal.github.io/2026/07/03/Geometric-Deep-Learning-Note1/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//www.google-analytics.com" crossorigin=""/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?a9a555a72e22ac10486e10847772ca68";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+btf.addGlobalFn('pjaxComplete', () => {
+  _hmt.push(['_trackPageview',window.location.pathname])
+}, 'baidu_analytics')
+</script><script async="async" src="https://www.googletagmanager.com/gtag/js?id=G-DPGHQQYNHZ"></script><script>window.dataLayer = window.dataLayer || []
+function gtag(){dataLayer.push(arguments)}
+gtag('js', new Date())
+gtag('config', 'G-DPGHQQYNHZ')
+btf.addGlobalFn('pjaxComplete', () => {
+  gtag('config', 'G-DPGHQQYNHZ', {'page_path': window.location.pathname})
+}, 'google_analytics')
+</script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Geometric Deep Learning Note1',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><link rel="stylesheet" href="/css/custom.css"></head><body><div class="bg-animation" id="web_bg" style="background-image: url(/url(/img/landscape1.png));"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/me.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/Geometric%20Deep%20Learning%20Note1.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">悟空的小站</span></a><a class="nav-page-title" href="/"><span class="site-name">Geometric Deep Learning Note1</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">Geometric Deep Learning Note1</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-07-02T16:00:00.000Z" title="发表于 2026-07-03 00:00:00">2026-07-03</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-07-03T15:18:23.791Z" title="更新于 2026-07-03 23:18:23">2026-07-03</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%90%86%E8%AE%BA/">理论</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="几何深度学习蓝图">几何深度学习蓝图</h1>
+<blockquote>
+<p>关键词：学习、维度灾难、对称性、形变稳定性</p>
+</blockquote>
+<hr />
+<h2 id="引言introduction">1. 引言（Introduction）</h2>
+<h3 id="深度学习的两个核心原则">1.1 深度学习的两个核心原则</h3>
+<ul>
+<li><strong>表示学习 / 特征学习（Feature
+Learning）</strong>：自适应的、通常是层次化的特征，为每个任务捕捉合适的规律性</li>
+<li><strong>局部梯度下降（Backpropagation）</strong>：通过反向传播实现</li>
+</ul>
+<h3 id="高维学习的困境">1.2 高维学习的困境</h3>
+<ul>
+<li>在通用高维函数空间中学习是”被诅咒的估计问题”（维数灾难）</li>
+<li>但现实任务<strong>并非通用</strong>——底层物理世界的低维性与结构赋予了数据本质的规律性</li>
+<li>本文目标：通过<strong>统一的几何原理</strong>揭示这些规律性</li>
+</ul>
+<h3 id="来自-erlangen-纲领的启发">1.3 来自 Erlangen 纲领的启发</h3>
+<ul>
+<li>Felix Klein
+(1872)：几何学是<strong>不变量</strong>的研究——在特定变换群下保持不变的性质</li>
+<li>十九世纪末的几何学流派纷争 → Klein 用群论统一</li>
+<li>当代深度学习与十九世纪几何学的相似之处：架构”动物园”，缺乏统一原理</li>
+<li><strong>GDL
+的野心</strong>：用对称性与不变性的一阶原理推导归纳偏置与网络架构</li>
+<li>双重目的：
+<ol type="1">
+<li>提供统一框架研究 CNN、RNN、GNN、Transformer 等</li>
+<li>提供将物理先验知识纳入神经架构的<strong>构造性程序</strong></li>
+</ol></li>
+</ul>
+<h3 id="本书边界">1.4 本书边界</h3>
+<ul>
+<li><strong>核心关注</strong>：表示学习架构与数据的对称性</li>
+<li><strong>不重点关注</strong>：训练
+pipeline（自监督、生成模型、强化学习）、优化器（Adam）、正则化（Dropout、BatchNorm）</li>
+</ul>
+<hr />
+<h2 id="高维学习learning-in-high-dimensions">2. 高维学习（Learning in
+High Dimensions）</h2>
+<h3 id="监督学习的形式化">2.1 监督学习的形式化</h3>
+<h4 id="基本设定">基本设定</h4>
+<p>监督学习的最简形式从<strong>数据</strong>开始。假设我们有 <span
+class="math inline">\(N\)</span> 个观测样本组成的训练集：</p>
+<p><span class="math display">\[\mathcal{D} = \{(x_i,
+y_i)\}_{i=1}^{N}\]</span></p>
+<p>这些样本从某个未知的底层数据分布 <span
+class="math inline">\(P\)</span> 中<strong>独立同分布（i.i.d.）</strong>
+采样得到。<span class="math inline">\(P\)</span> 定义在 <span
+class="math inline">\(\mathcal{X} \times \mathcal{Y}\)</span>
+上，其中：</p>
+<ul>
+<li><span class="math inline">\(\mathcal{X}\)</span> —
+数据域（输入空间）</li>
+<li><span class="math inline">\(\mathcal{Y}\)</span> —
+标签域（输出空间）</li>
+</ul>
+<p>在典型的深度学习场景中，<span class="math inline">\(\mathcal{X}=
+\mathbb{R}^d\)</span> 是一个<strong>高维欧氏空间</strong>，<span
+class="math inline">\(d\)</span> 很大（例如一张 256×256 的 RGB 图像对应
+<span class="math inline">\(d = 256 \times 256 \times 3 =
+196{,}608\)</span>）。这是整个讨论的出发点：我们必须处理维数极高的输入。</p>
+<blockquote>
+<p>本书后续将把 <span class="math inline">\(\mathcal{X}\)</span>
+从”非结构化向量空间”推广为更结构化的形式——<strong>定义在低维几何域 <span
+class="math inline">\(\Omega\)</span> 上的信号空间</strong> <span
+class="math inline">\(\mathcal{X}(\Omega) = \{x: \Omega \to
+\mathbb{R}\}\)</span>，例如网格、图或流形。这恰是 GDL
+的核心视角转换。</p>
+</blockquote>
+<h4 id="数据生成假设">数据生成假设</h4>
+<p>最简单的假设是标签由某个<strong>未知函数</strong> <span
+class="math inline">\(f\)</span> 生成：</p>
+<p><span class="math display">\[y_i = f(x_i)\]</span></p>
+<p>这意味着我们处于<strong>无噪声（noiseless）</strong>
+的理想化设定中——每个观测的标签完全由输入决定，不存在随机扰动。真实世界中噪声无处不在，但这一简化使我们能首先聚焦于函数逼近的核心问题，而不被随机性分散注意力。</p>
+<h4 id="学习问题参数化函数类">学习问题：参数化函数类</h4>
+<p>学习问题归结为：从有限样本 <span
+class="math inline">\(\mathcal{D}\)</span>
+出发，<strong>估计</strong>未知函数 <span
+class="math inline">\(f\)</span>。</p>
+<p>估计器来自某个<strong>参数化函数类（parametric function
+class）</strong>：</p>
+<p><span class="math display">\[\mathcal{F} = \{ f_\theta : \theta \in
+\Theta \}\]</span></p>
+<ul>
+<li><span class="math inline">\(\theta \in \Theta\)</span> 是参数，<span
+class="math inline">\(\mathcal{F}\)</span> 是参数化的假设空间</li>
+<li>神经网络是这类参数化函数类最常见的实现：此时 <span
+class="math inline">\(\theta\)</span>
+对应网络的<strong>权重（weights）</strong></li>
+<li>函数类 <span class="math inline">\(\mathcal{F}\)</span>
+的选择本身已经是一种归纳偏置——它限定了哪些函数可以被表示</li>
+</ul>
+<h4 id="插值区域interpolating-regime">插值区域（Interpolating
+Regime）</h4>
+<p>现代深度学习系统典型地工作在所谓的<strong>插值区域</strong>：估计得到的函数
+<span class="math inline">\(\tilde{f} \in \mathcal{F}\)</span>
+在<strong>所有训练点上完美拟合</strong>标签：</p>
+<p><span class="math display">\[\tilde{f}(x_i) = f(x_i) \quad \text{for
+all } i = 1, \ldots, N\]</span></p>
+<p>这意味着训练误差为零。经典统计学告诉我们，在低维设定中，完美拟合训练数据通常意味着<strong>过拟合（overfitting）</strong>——模型记住了训练集的噪声而丧失泛化能力。然而，现代深度网络在高维设定中恰表现出截然相反的行为：尽管完美插值训练数据，它们仍能在测试数据上取得出色的泛化表现。这一反直觉的现象是当前深度学习理论研究的核心谜题之一，也暗示了神经网络本身隐式地编码了某种”好的”归纳偏置。</p>
+<h4 id="泛化性能的度量">泛化性能的度量</h4>
+<p>学习算法的真正性能不由训练集上的表现来衡量，而由其<strong>泛化能力</strong>——即对从未见过的新样本的预测准确性——来衡量。</p>
+<p>给定损失函数 <span class="math inline">\(L(\cdot,
+\cdot)\)</span>，定义<strong>期望风险（expected risk）</strong>：</p>
+<p><span class="math display">\[\mathcal{R}(\tilde{f}) := \mathbb{E}_{P}
+\, L(\tilde{f}(x), f(x))\]</span></p>
+<p>这里 <span class="math inline">\(\mathbb{E}_P\)</span>
+表示对从数据分布 <span class="math inline">\(P\)</span>
+中采样的新数据点求期望。期望风险是对泛化误差的理论刻画——它衡量了学习到的函数
+<span class="math inline">\(\tilde{f}\)</span>
+在整个数据分布上的平均表现。</p>
+<p>最常用的损失函数之一是<strong>平方损失</strong>：</p>
+<p><span class="math display">\[L(y, y&#39;) = \frac{1}{2} |y -
+y&#39;|^2\]</span></p>
+<blockquote>
+<p>注：统计学习理论提供了更精细的泛化界，通常基于<strong>集中不等式（concentration
+inequalities）</strong>
+推导得到。本书主要从几何/对称性角度切入，对统计学习理论部分仅作参考引述。</p>
+</blockquote>
+<h4 id="从形式化到核心问题">从形式化到核心问题</h4>
+<p>上述形式化揭示了一个根本性的张力：</p>
+<ul>
+<li><strong>表达能力</strong>：<span
+class="math inline">\(\mathcal{F}\)</span>
+需要足够丰富（dense），以近似任意目标函数（Universal
+Approximation）</li>
+<li><strong>泛化能力</strong>：<span
+class="math inline">\(\mathcal{F}\)</span>
+需要被充分约束，以避免在高维中过拟合</li>
+</ul>
+<p>成功的学习方案必须通过 <span
+class="math inline">\(\mathcal{F}\)</span>
+的构造和<strong>正则化（regularisation）</strong> 来编码关于 <span
+class="math inline">\(f\)</span>
+的适当规律性——即<strong>归纳偏置（inductive
+bias）</strong>。这正是下一节讨论的核心。</p>
+<h3 id="归纳偏置与函数正则性">2.2 归纳偏置与函数正则性</h3>
+<h4 id="从插值到有意义的泛化">从插值到有意义的泛化</h4>
+<p>上节末尾的张力提出一个关键问题：在一个能表示几乎任意函数的巨大空间
+<span class="math inline">\(\mathcal{F}\)</span>
+中，什么机制确保神经网络能从无限多个可行解中选出”正确的”那个？</p>
+<p>现代机器学习的实践给出了一部分答案：大规模、高质量的数据集，配合充足的计算资源，使得我们可以设计出容量极高的函数类——它们大到足以<strong>插值</strong>（完美拟合）整个训练集。神经网络自然地契合这一思路：即使是最简单的架构选择，也产生一个<strong>稠密（dense）</strong>
+的函数类。</p>
+<p><span class="math inline">\(\mathcal{A}\)</span> 在 <span
+class="math inline">\(\mathcal{X}\)</span> 中稠密”的意思是：<span
+class="math inline">\(\mathcal{X}\)</span> 里的任意一个点，都能被 <span
+class="math inline">\(\mathcal{A}\)</span> 中的某个序列无限逼近。即
+<span class="math inline">\(\mathcal{A}\)</span> 的闭包就是整个 <span
+class="math inline">\(\mathcal{X}\)</span>。例如有理数 <span
+class="math inline">\(\mathbb{Q}\)</span> 在实数 <span
+class="math inline">\(\mathbb{R}\)</span> 中稠密。任意一个实数（比如
+<span class="math inline">\(\pi =
+3.14159\ldots\)</span>），你都能用一列有理数 <span
+class="math inline">\(3, 3.1, 3.14, 3.141, \ldots\)</span>
+去无限逼近它。</p>
+<p>放到神经网络的语境里：</p>
+<p><span class="math inline">\(\mathcal{X}\)</span> =
+所有连续函数的空间（无穷维，极其巨大）。<span
+class="math inline">\(\mathcal{A}\)</span> =
+两层感知机能表示的函数集合。</p>
+<p>通用逼近定理说的就是：给定任意一个连续函数（无论多复杂），你都能找到一个两层感知机，让它们之间的误差任意小。即两层感知机这个”小”集合
+<span class="math inline">\(\mathcal{A}\)</span>
+在全体连续函数这个”大”空间 <span
+class="math inline">\(\mathcal{X}\)</span> 中是稠密的。</p>
+<p>打个比方：像素画（马赛克）可以逼近任意图像——只要像素点足够多、足够细。两层感知机就是函数空间里的”像素画”，阶跃函数就是它的”像素块”。</p>
+<blockquote>
+<p><strong>稠密性（Denseness）</strong>：集合 <span
+class="math inline">\(\mathcal{A} \subset \mathcal{X}\)</span> 在 <span
+class="math inline">\(\mathcal{X}\)</span> 中稠密，如果 <span
+class="math inline">\(\mathcal{A}\)</span> 的闭包(集合本身 +
+集合中所有收敛序列的极限点)等于 <span
+class="math inline">\(\mathcal{X}\)</span>： <span
+class="math display">\[\mathcal{A} \cup \left\{ \lim_{i\to\infty} a_i :
+a_i \in \mathcal{A} \right\} = \mathcal{X}\]</span> 直观理解：<span
+class="math inline">\(\mathcal{X}\)</span> 中任意一点都可以被 <span
+class="math inline">\(\mathcal{A}\)</span>
+中的点<strong>任意逼近</strong>。</p>
+</blockquote>
+<h4
+id="通用逼近定理universal-approximation-theorems">通用逼近定理（Universal
+Approximation Theorems）</h4>
+<p>神经网络能”近似任何函数”并非经验猜测，而是有严格的数学保证。<strong>通用逼近定理</strong>表明，即使是最简单的神经网络也能在函数空间中稠密：</p>
+<ul>
+<li>一个两层感知机 <span class="math inline">\(f(\mathbf{x}) =
+\mathbf{c}^\top \mathrm{sign}(\mathbf{A}\mathbf{x} +
+\mathbf{b})\)</span> 在连续函数空间 <span
+class="math inline">\(C(\mathbb{R}^d)\)</span> 中稠密</li>
+<li>只需一个隐藏层 + sign 非线性激活 +
+线性输出层，就能以任意精度逼近任意连续函数</li>
+<li>直觉理解（见原文 Figure
+1）：隐藏层神经元对应<strong>阶跃函数</strong>的跃变位置和方向，足够多的阶跃函数组合可以像”乐高积木”一样拼接出任意形状</li>
+</ul>
+<img src="/2026/07/03/Geometric-Deep-Learning-Note1/image-20260703194046783.png" class="" title="通用逼近">
+<p>这些定理在 1990
+年代被应用数学家和计算机科学家系统性地证明和推广（Cybenko 1989, Hornik
+1991, Barron 1993, Leshno 1993, Maiorov 1999, Pinkus 1999 等）。</p>
+<h4 id="关键洞察通用逼近-没有归纳偏置">关键洞察：通用逼近 ≠
+没有归纳偏置</h4>
+<p>这一点极易被误解。通用逼近定理说 <span
+class="math inline">\(\mathcal{F}\)</span>
+能够逼近任意函数——但这<strong>并不意味着</strong>在实际学习中 <span
+class="math inline">\(\mathcal{F}\)</span>
+中的所有函数都享有同等地位。</p>
+<p>给定一个具有通用逼近能力的假设空间 <span
+class="math inline">\(\mathcal{F}\)</span>，我们可以定义一个<strong>复杂度度量</strong>：</p>
+<p><span class="math display">\[c : \mathcal{F} \to
+\mathbb{R}_+\]</span></p>
+<p>将原始的插值问题重新表述为一个<strong>约束优化问题</strong>：</p>
+<p><span class="math display">\[\tilde{f} \in \arg\min_{g \in
+\mathcal{F}} c(g) \quad \text{s.t.} \quad g(x_i) = f(x_i) \quad
+\text{for } i = 1, \ldots, N\]</span></p>
+<p>翻译成自然语言：在<strong>所有</strong>完美拟合训练数据的函数中，我们选择<strong>最简单</strong>（复杂度最低）的那个。这是归纳偏置发挥作用的具体方式——不是”能表示什么”（通用逼近已保证这点），而是”偏好什么”（简单者优先）。</p>
+<h4 id="经典函数空间中的实现">经典函数空间中的实现</h4>
+<p>对于标准的函数空间，复杂度度量可以定义为一个<strong>范数（norm）</strong>
+<span class="math inline">\(\|\cdot\|\)</span>，使 <span
+class="math inline">\(\mathcal{F}\)</span> 成为一个 <strong>Banach
+空间</strong>（完备的赋范向量空间）。这带来一个巨大好处：可以直接利用泛函分析中丰富的理论工具。</p>
+<p>低维情形中的经典案例是<strong>样条插值（spline
+interpolation）</strong>：</p>
+<ul>
+<li><p><strong>三次样条（cubic
+splines）</strong>：复杂度由二阶导数的平方积分定义 <span
+class="math display">\[c(f) = \int_{-\infty}^{+\infty}
+|f&#39;&#39;(x)|^2 \, \mathrm{d}x\]</span>
+这捕捉了函数”弯曲程度”的直觉——曲率越小，函数越光滑。相应的插值函数即所谓<strong>平滑样条（smoothing
+spline）</strong>。</p></li>
+<li><p>在低维（<span
+class="math inline">\(d=1,2,3\)</span>），这类工具具有精确的数学控制，是信号处理的基石。</p></li>
+</ul>
+<h4 id="神经网络中的复杂度">神经网络中的复杂度</h4>
+<p>对于神经网络 <span
+class="math inline">\(f_\theta\)</span>，复杂度度量自然地表达为网络<strong>权重的函数</strong>：</p>
+<p><span class="math display">\[c(f_\theta) = c(\theta)\]</span></p>
+<p>几种常用选择：</p>
+<table>
+<colgroup>
+<col style="width: 47%" />
+<col style="width: 26%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr>
+<th>复杂度度量</th>
+<th>公式</th>
+<th>直觉</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Weight Decay</strong></td>
+<td><span class="math inline">\(c(\theta) =
+\|\theta\|_2^2\)</span>（权重的 <span class="math inline">\(L_2\)</span>
+范数）</td>
+<td>偏好小权重，将函数推向平坦/简单</td>
+</tr>
+<tr>
+<td><strong>Path-norm</strong> (Neyshabur 2015)</td>
+<td>沿网络路径的权重的乘积之和</td>
+<td>更精细地刻画网络容量</td>
+</tr>
+</tbody>
+</table>
+<h4 id="三种视角的统一">三种视角的统一</h4>
+<p>书中从三个互补的视角审视复杂度(这里意思是神经网络的拟合倾向)度量：</p>
+<p><strong>1. 泛函分析视角</strong> — 范数 + 约束优化 - 将函数学习视为
+Banach 空间中的约束最小化问题 - 复杂度 = 范数，<span
+class="math inline">\(\mathcal{F}\)</span> 成为赋范空间</p>
+<p><strong>2. 贝叶斯视角</strong> — 先验分布的负对数 - 复杂度度量 <span
+class="math inline">\(c(f)\)</span> 等价于函数 <span
+class="math inline">\(f\)</span> 的<strong>负对数先验</strong> <span
+class="math inline">\(-\log p(f)\)</span> - 约束优化 <span
+class="math inline">\(\min c(f)\)</span> ≡ 最大后验估计（MAP） -
+例如：<span class="math inline">\(L_2\)</span> 正则化 ≡ Gaussian
+先验；<span class="math inline">\(L_1\)</span> 正则化 ≡ Laplace 先验</p>
+<p>从贝叶斯公式出发：</p>
+<p><span class="math display">\[p(f \mid \mathcal{D}) \propto
+p(\mathcal{D} \mid f) \cdot p(f)\]</span></p>
+<p><span class="math inline">\(p(f)\)</span> —
+先验：在看到任何数据之前，我们认为函数 <span
+class="math inline">\(f\)</span> 本身有多”可能”存在</p>
+<p><span class="math inline">\(p(\mathcal{D} \mid f)\)</span> —
+似然：给定函数 <span class="math inline">\(f\)</span>，观测到数据集
+<span class="math inline">\(\mathcal{D}\)</span> 的概率</p>
+<p><span class="math inline">\(p(f \mid \mathcal{D})\)</span> —
+后验：看到数据后，更新了的信念 我们要找最可能的函数 →
+最大化后验（MAP）：</p>
+<p><span class="math display">\[\max_f  p(f \mid \mathcal{D}) =
+\max_f  p(\mathcal{D} \mid f) \cdot p(f)\]</span></p>
+<p>取负对数，把乘法变加法、最大化变最小化：</p>
+<p><span class="math display">\[\min_f  \underbrace{-\log p(\mathcal{D}
+\mid f)}{\text{数据拟合项}} + \underbrace{(-\log
+p(f))}{\text{复杂度惩罚}}\]</span></p>
+<p>对比约束优化的形式：</p>
+<p><span class="math display">\[\min_{g}  c(g) \quad \text{s.t.} \quad
+g(x_i) = f(x_i)\]</span></p>
+<p>约束 <span class="math inline">\(g(x_i) = f(x_i)\)</span> 对应 <span
+class="math inline">\(-\log p(\mathcal{D} \mid g)\)</span>
+取到极小值（完美拟合 = 似然最大化） <span
+class="math inline">\(c(g)\)</span> 对应 <span
+class="math inline">\(-\log p(g)\)</span> 所以 <span
+class="math inline">\(c(f) = -\log
+p(f)\)</span>：复杂度度量就是先验概率的负对数。</p>
+<p>具体例子：<span class="math inline">\(L_2\)</span> 正则化等价于
+Gaussian 先验。</p>
+<p>Gaussian 分布：<span class="math inline">\(p(\theta) \propto \exp
+\left(-\frac{|\theta|^2}{2\sigma^2}\right)\)</span></p>
+<p>取负对数：<span class="math inline">\(-\log p(\theta) \propto
+|\theta|^2\)</span> — 这就是 Weight Decay。</p>
+<p>它的直觉是：在看数据之前，我就先入为主地相信——权重接近零的函数更”正常”，权重很大的函数很”可疑”。</p>
+<p>同理 <span class="math inline">\(L_1\)</span> 正则化对应 Laplace
+先验：<span class="math inline">\(p(\theta) \propto
+e^{-\lambda|\theta|}\)</span>，负对数就是 <span
+class="math inline">\(\lambda|\theta|\)</span>。直觉是：大部分权重应该精确为零（稀疏性），只有少数起作用的连接。</p>
+<p><strong>3. 显式 vs 隐式正则化</strong> -
+<strong>显式（Explicit）</strong>：将 <span
+class="math inline">\(c(\theta)\)</span> 直接加入经验损失函数中优化 ——
+即<strong>结构风险最小化（Structural Risk Minimisation）</strong> -
+<strong>隐式（Implicit）</strong>：<span
+class="math inline">\(c(\theta)\)</span>
+不显式出现在目标函数中，而是作为特定优化算法的<strong>副产品</strong>自然产生
+- 经典事实：梯度下降在<strong>欠定最小二乘</strong>问题上，会自动收敛到
+<span class="math inline">\(L_2\)</span> 范数最小的插值解 -
+这一现象向现代深度网络的推广是当前活跃的研究方向（Blanc 2020, Shamir
+2020, Razin 2020, Gunasekar 2017 等）</p>
+<h4 id="悬而未决的核心问题">悬而未决的核心问题</h4>
+<p>上述讨论最终导向全书要回答的根本问题：</p>
+<blockquote>
+<p><strong>如何定义有效的先验，以捕捉现实世界预测任务的真实规律性和复杂性？</strong></p>
+</blockquote>
+<p>经典函数空间（Sobolev、Lipschitz）中基于范数的先验回答不了这个问题——它们向高维的推广在下一节（2.3
+维数灾难）中被证明指数级失败。<strong>几何先验</strong>（对称性 +
+尺度分离）正是本书给出的答案。</p>
+<h3 id="维数灾难the-curse-of-dimensionality">2.3 维数灾难（The Curse of
+Dimensionality）</h3>
+<h4 id="低维-vs-高维一个根本性的分水岭">低维 vs
+高维：一个根本性的分水岭</h4>
+<p>在低维（<span
+class="math inline">\(d=1,2,3\)</span>）中进行插值是经典的信号处理任务。我们有极其丰富且精致的数学工具可以对估计误差实现精确控制——样条插值、小波（wavelets）、曲波（curvelets）、脊波（ridgelets）等。这些工具的共同基础是：用越来越复杂的正则性类（Sobolev
+空间、Hölder 空间等）去刻画函数的”光滑程度”。</p>
+<p>但高维情况<strong>完全不同</strong>。当我们把同样的正则性类原封不动地搬入高维空间时，它们以一种灾难性的方式失效——这被称为<strong>维数灾难（curse
+of dimensionality）</strong>。</p>
+<h4 id="lipschitz-类一个具体的解剖案例">Lipschitz
+类：一个具体的解剖案例</h4>
+<p>为了传达这一思想的本质，考虑一个最简单又易于推广到高维的正则性类：<strong>1-Lipschitz
+函数</strong>。</p>
+<p><span class="math display">\[f: \mathcal{X} \to \mathbb{R} \quad
+\text{满足} \quad |f(x) - f(x&#39;)| \leq \|x - x&#39;\| \quad \forall
+x, x&#39; \in \mathcal{X}\]</span></p>
+<p>这个假设极其温和——只要求目标函数是<strong>局部光滑</strong>的：如果稍微扰动输入
+<span class="math inline">\(x\)</span>（以范数 <span
+class="math inline">\(\|x - x&#39;\|\)</span> 衡量），输出 <span
+class="math inline">\(f(x)\)</span> 不会剧烈变化。1-Lipschitz
+几乎是最弱的光滑性要求：系数的斜率不超过 1。</p>
+<p><strong>问题是</strong>：如果我们对 <span
+class="math inline">\(f\)</span> 的唯一认知就是它是 1-Lipschitz
+的，需要多少个观测样本才能保证估计值 <span
+class="math inline">\(\tilde{f}\)</span> 在整个空间上接近真实的 <span
+class="math inline">\(f\)</span>？</p>
+<h4 id="几何直觉象限构造">几何直觉：象限构造</h4>
+<p>书中通过一个精巧的构造来给出答案（Figure 2）。</p>
+<img src="/2026/07/03/Geometric-Deep-Learning-Note1/image-20260703194152433.png" class="" title="维数灾难">
+<p>考虑 <span class="math display">\[f(x) = \sum_{j=1}^{2^d} z_j \cdot
+\phi(x - x_j)\]</span></p>
+<ul>
+<li><span class="math inline">\(x_j\)</span> 被放置在 <span
+class="math inline">\(\mathbb{R}^d\)</span>
+的每一个<strong>象限（quadrant）</strong> 中——总共有 <span
+class="math inline">\(2^d\)</span> 个象限</li>
+<li><span class="math inline">\(z_j = \pm 1\)</span> 是每个象限中 <span
+class="math inline">\(f\)</span> 的符号</li>
+<li><span class="math inline">\(\phi\)</span> 是一个局部支撑的 Lipschitz
+“鼓包”函数(只在自己象限内非零的函数，形如一个小山丘)</li>
+</ul>
+<p>这一构造的核心是：除非我们在<strong>大多数</strong> <span
+class="math inline">\(2^d\)</span> 个象限中都观测到了 <span
+class="math inline">\(f\)</span>
+的值，否则对未观测象限中的符号我们将一无所知——预测误差将恒为常数级（<span
+class="math inline">\(\mathcal{O}(1)\)</span>），无论我们用了什么估计方法。</p>
+<p>这里的”<span
+class="math inline">\(2^d\)</span>“是致命的：象限数随维度 <span
+class="math inline">\(d\)</span>
+<strong>指数增长</strong>。这直接意味着所需样本数 <span
+class="math inline">\(N\)</span> 必须与 <span
+class="math inline">\(2^d\)</span> 同一量级。</p>
+<blockquote>
+<p>可观测宇宙中的质子数（<strong>Eddington 数</strong>）估计约为 <span
+class="math inline">\(10^{80}\)</span>。即使对于中等维度 <span
+class="math inline">\(d=100\)</span>，<span
+class="math inline">\(2^{100} \approx 10^{30}\)</span>
+尚可接受，但现实中的图像数据 <span class="math inline">\(d\)</span>
+通常高达 <span class="math inline">\(10^5\)</span>–<span
+class="math inline">\(10^6\)</span>。</p>
+</blockquote>
+<h4
+id="数学形式化最大差异maximum-discrepancy">数学形式化：最大差异（Maximum
+Discrepancy）</h4>
+<p>上述几何直觉可以通过<strong>最大差异</strong>的概念严格形式化（von
+Luxburg &amp; Bousquet 2004）。对于 Lipschitz 类：</p>
+<p><span class="math display">\[\kappa(d) = \mathbb{E}_{x, x&#39;}
+\sup_{f \in \mathrm{Lip}(1)} \left| \frac{1}{N}\sum_{l} f(x_l) -
+\frac{1}{N}\sum_{l} f(x&#39;_l) \right| \simeq N^{-1/d}\]</span></p>
+<p><span class="math inline">\(\kappa(d)\)</span> 衡量两个独立的 <span
+class="math inline">\(N\)</span>
+样本经验期望之间可能存在的最大差异。<span
+class="math inline">\(N^{-1/d}\)</span> 来自一个纯粹的几何事实：在 <span
+class="math inline">\(d\)</span> 维空间中，用 <span
+class="math inline">\(N\)</span> 个点覆盖一个区域，点与点之间的间距是
+<span class="math inline">\(N^{-1/d}\)</span>。在 <span
+class="math inline">\([0,1]\)</span> 线段上均匀放 <span
+class="math inline">\(N\)</span> 个点，相邻点间距 = <span
+class="math inline">\(1/N = N^{-1}\)</span>。在 <span
+class="math inline">\([0,1] \times [0,1]\)</span> 正方形里放 <span
+class="math inline">\(N\)</span> 个点(每个维度分到 <span
+class="math inline">\(\sqrt{N}\)</span> 个点)，排成 <span
+class="math inline">\(\sqrt{N} \times \sqrt{N}\)</span> 的网格。行间距 =
+列间距 = <span class="math inline">\(1/\sqrt{N} =
+N^{-1/2}\)</span>。</p>
+<p>为确保 <span class="math inline">\(\kappa(d) \simeq
+\epsilon\)</span>（即泛化误差控制在 <span
+class="math inline">\(\epsilon\)</span> 以内），必须有：</p>
+<p><span class="math display">\[N = \Theta(\epsilon^{-d})\]</span></p>
+<p>样本量随维度指数增长。相应的样本集合 <span
+class="math inline">\(\{x_l\}_l\)</span> 定义了域的一个 <strong><span
+class="math inline">\(\epsilon\)</span>-网（<span
+class="math inline">\(\epsilon\)</span>-net）</strong>：对于 <span
+class="math inline">\(d\)</span> 维直径 <span
+class="math inline">\(1\)</span> 的欧氏域，<span
+class="math inline">\(\epsilon\)</span>-网的大小按 <span
+class="math inline">\(\epsilon^{-d}\)</span>
+指数增长——这就是维数灾难的几何本质。<span
+class="math inline">\(\Theta\)</span> 的含义是 <span
+class="math inline">\(N = \Theta(\epsilon^{-d})\)</span> 表示 <span
+class="math inline">\(N\)</span> 的增长率和 <span
+class="math inline">\(\epsilon^{-d}\)</span>
+同阶——既不会更省，也不会更差。它们是成比例的：你要求精度提高 10
+倍（<span class="math inline">\(\epsilon \to
+\epsilon/10\)</span>），样本量就要涨 <span
+class="math inline">\(10^d\)</span> 倍。</p>
+<p><strong>直观验证</strong>：</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">\(d\)</span></th>
+<th><span class="math inline">\(N=100\)</span> 时的间距 <span
+class="math inline">\(N^{-1/d}\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0.01（1% 精度，很好）</td>
+</tr>
+<tr>
+<td>3</td>
+<td>0.215（21% 精度，勉强）</td>
+</tr>
+<tr>
+<td>10</td>
+<td>0.631（63% 精度，很差）</td>
+</tr>
+<tr>
+<td>100</td>
+<td>0.955（几乎无信息）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>同样的样本量，维度越高，样本点被”稀释”得越稀疏</strong>，你对函数能知道的信息就越少。想在
+<span class="math inline">\(d=100\)</span> 时达到 <span
+class="math inline">\(d=1\)</span> 的间距 0.01，需要 <span
+class="math inline">\(N = (1/0.01)^{100} = 10^{200}\)</span>
+个样本。</p>
+<h4 id="sobolev-类光滑性假设也救不了">Sobolev
+类：光滑性假设也救不了</h4>
+<p>将 Lipschitz 类替换为更强的全局光滑性假设（如 <strong>Sobolev 类
+<span
+class="math inline">\(\mathcal{H}^s\)</span></strong>）后情况有所改善，但未解决根本问题。</p>
+<blockquote>
+<p><strong>Sobolev 类 <span
+class="math inline">\(\mathcal{H}^s(\Omega_d)\)</span></strong>：<span
+class="math inline">\(f \in L^2(\Omega_d)\)</span> 且其 <span
+class="math inline">\(s\)</span> 阶广义导数是平方可积的（在 Fourier 域中
+<span class="math inline">\(\int |\omega|^{2s+1} |\hat{f}(\omega)|^2
+d\omega &lt; \infty\)</span>）。<span class="math inline">\(s\)</span>
+越大，函数越光滑。</p>
+</blockquote>
+<p>经典结果（Tsybakov 2008）给出 Sobolev 类的 <strong>minimax
+最优收敛率</strong>为：<span
+class="math display">\[\epsilon^{-d/s}\]</span></p>
+<p>这意味着光滑性假设 <span class="math inline">\(s\)</span> 只有在
+<span class="math inline">\(s \propto d\)</span> （<span
+class="math inline">\(s\)</span>
+与维度成正比）时才能真正改善统计图景——即需要函数<strong>极其光滑</strong>。在实践中，要求一个自然函数具有与输入维度成比例的高阶光滑性是不现实的。</p>
+<p>总结：经典的正则性类（无论是温和的 Lipschitz 还是强光滑的
+Sobolev）向高维的推广都以失败告终。它们”成长得太快”——函数类在维度增加时膨胀得过于剧烈，以至于学习变得在统计上不可行。</p>
+<h4 id="神经网络的出路及其代价">神经网络的出路——及其代价</h4>
+<p>全连接神经网络提供了一种不同的可能性。通过在权重上施加复杂度度量
+<span class="math inline">\(c(\theta)\)</span>（等价于 2.2
+节中的稀疏正则化），神经网络有能力<strong>打破维数灾难</strong>（Bach
+2017）。</p>
+<p>但这有一个关键的前提条件：目标函数 <span
+class="math inline">\(f\)</span> 必须可以被近似为：</p>
+<p><span class="math display">\[f(\mathbf{x}) \approx
+g(\mathbf{A}\mathbf{x}), \quad \mathbf{A} \in \mathbb{R}^{k \times d},
+\; k \ll d\]</span></p>
+<p>即 <span class="math inline">\(f\)</span>
+本质上只依赖于输入向量的<strong>少量低维投影</strong>的组合。换言之，高维输入
+<span class="math inline">\(\mathbf{x}\)</span>
+中的大部分方向对函数输出来说是无关紧要的。</p>
+<h4 id="为什么这一假设在现实中不成立">为什么这一假设在现实中不成立</h4>
+<p>书中用 MNIST 图像的低通滤波实验给出了一个简洁的反驳（Figure 3）：</p>
+<img src="/2026/07/03/Geometric-Deep-Learning-Note1/image-20260703194249363.png" class="" title="低通滤波实验">
+<p>对输入图像施加低通滤波器（相当于投影到低维子空间），虽然保留了图像的大部分<strong>语义</strong>信息（数字类别仍可辨认），但<strong>大量细节信息被丢失</strong>。</p>
+<p>在真实的计算机视觉、语音分析、物理或化学应用中，我们关心的函数倾向于展现<strong>复杂的长程相关性</strong>——无法用低维投影来表达。一张自然图像中的物体间的空间关系、遮挡、光照变化，或一个分子中各原子间的非局部相互作用，都远非
+<span class="math inline">\(g(\mathbf{A}\mathbf{x})\)</span>
+所能捕获。</p>
+<h4 id="结论必须寻找新的正则性来源">结论：必须寻找新的正则性来源</h4>
+<p>经典函数空间正则性 → 维数灾难使之失效。神经网络稀疏正则化 →
+低维投影假设不现实。</p>
+<p>因此必须定义<strong>另一种正则性来源</strong>——不是来自抽象的”光滑度”，而是来自物理域本身的<strong>空间结构</strong>和
+<span class="math inline">\(f\)</span>
+的<strong>几何先验</strong>。这正是第 3 节（Geometric
+Priors）的出发点。</p>
+<hr />
+<h2 id="几何先验geometric-priors">3. 几何先验（Geometric Priors）</h2>
+<h3 id="信号空间的数学定义">3.1 信号空间的数学定义</h3>
+<h4 id="从向量空间到信号空间">从向量空间到信号空间</h4>
+<p>第 2 节的讨论停留在”输入是非结构化向量 <span
+class="math inline">\(\mathbf{x} \in
+\mathbb{R}^d\)</span>“的框架中。Geometric Deep Learning
+的核心范式转换在于重新理解输入的本质：</p>
+<blockquote>
+<p><strong>输入不是一堆任意的数字，而是定义在某个几何域 <span
+class="math inline">\(\Omega\)</span> 上的函数（信号）。</strong></p>
+</blockquote>
+<p>这是全书的视角转换。例如，一幅 <span class="math inline">\(n \times
+n\)</span> 的 RGB 图像并不是”一个 <span
+class="math inline">\(3n^2\)</span>
+维的向量”——虽然它可以被展开成那样——而是<strong>一个从 2D
+网格到颜色空间的映射</strong>：</p>
+<p><span class="math display">\[x: \underbrace{\mathbb{Z}_n \times
+\mathbb{Z}_n}_{\text{域 } \Omega} \rightarrow
+\underbrace{\mathbb{R}^3}_{\text{通道 } \mathcal{C}}\]</span></p>
+<p>每个像素位置 <span class="math inline">\(u = (i,j)\)</span> 对应一个
+RGB 三元组 <span class="math inline">\(x(u) = (R, G, B)\)</span>。</p>
+<h4 id="为什么不直接处理向量">为什么不直接处理向量？</h4>
+<p>因为域 <span class="math inline">\(\Omega\)</span>
+上携带着<strong>几何结构</strong>——网格的平移对称性、图的排列对称性、流形的曲率——这些结构在将信号强行展开为向量时全部丢失。GDL
+的整个计划就是<strong>利用这些几何结构来约束学习</strong>。为此，必须首先将信号空间精确地数学化。</p>
+<h4 id="信号空间的形式定义">信号空间的形式定义</h4>
+<p>给定域 <span
+class="math inline">\(\Omega\)</span>（一个集合，可能附带额外几何结构）和向量空间
+<span
+class="math inline">\(\mathcal{C}\)</span>（其维度称为<strong>通道数</strong>），定义：</p>
+<p><span class="math display">\[\mathcal{X}(\Omega, \mathcal{C}) = \{ x
+: \Omega \rightarrow \mathcal{C} \}\]</span></p>
+<ul>
+<li><strong>域 <span
+class="math inline">\(\Omega\)</span></strong>：信号的”定义域”——网格、图、流形、群等。<span
+class="math inline">\(\Omega\)</span>
+本身<strong>不必是向量空间</strong>（如：图上的节点不能直接做加法），我们可以直接在任意集合上定义信号</li>
+<li><strong>通道空间 <span
+class="math inline">\(\mathcal{C}\)</span></strong>：信号在每个点上的取值空间，通常是
+<span class="math inline">\(\mathbb{R}^s\)</span>（<span
+class="math inline">\(s\)</span> 个通道）</li>
+<li><span class="math inline">\(\mathcal{X}(\Omega,
+\mathcal{C})\)</span> 本身是一个<strong>函数空间</strong></li>
+</ul>
+<blockquote>
+<p>当 <span class="math inline">\(\Omega\)</span>
+带有额外结构（如光滑流形），可以进一步限制信号类（如要求光滑）。之后我们将尽可能缩写为
+<span class="math inline">\(\mathcal{X}(\Omega)\)</span>，省略 <span
+class="math inline">\(\mathcal{C}\)</span>。</p>
+</blockquote>
+<p><strong>域 <span class="math inline">\(\Omega\)</span></strong></p>
+<p>书中的 <span class="math inline">\(\Omega\)</span>
+就是信号的<strong>定义域</strong>——信号 <span
+class="math inline">\(x\)</span>
+的输入来自哪里。它可以是非常一般的集合：</p>
+<table>
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 40%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr>
+<th>例子</th>
+<th><span class="math inline">\(\Omega\)</span></th>
+<th>是否有向量空间结构？</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>图像</td>
+<td><span class="math inline">\(\mathbb{Z}_n \times
+\mathbb{Z}_n\)</span>（像素网格）</td>
+<td>否。网格上的两个像素位置不能相加——<span class="math inline">\((i,j)
++ (i&#39;,j&#39;)\)</span> 没有意义</td>
+</tr>
+<tr>
+<td>社交网络</td>
+<td>图 <span class="math inline">\(G = (\mathcal{V},
+\mathcal{E})\)</span></td>
+<td>否。节点是离散的标签，节点之间无加法</td>
+</tr>
+<tr>
+<td>3D 形状</td>
+<td>流形 <span class="math inline">\(\mathcal{M}\)</span>（如球面 <span
+class="math inline">\(S^2\)</span>）</td>
+<td>否。球面上两点相加不落在球面上</td>
+</tr>
+<tr>
+<td>一般情况</td>
+<td>任意集合 <span class="math inline">\(\Omega\)</span></td>
+<td>不需要任何代数结构</td>
+</tr>
+</tbody>
+</table>
+<p>域可以携带额外的<strong>几何结构</strong>——距离（度量）、拓扑（连续性）、微分结构（光滑性）——这些结构被对称性群所保护。但它们不必须能”做加法”。</p>
+<p><strong>向量空间 <span class="math inline">\(V\)</span></strong></p>
+<p>向量空间 <span class="math inline">\(V\)</span>
+是一个集合，配备两种运算：</p>
+<ol type="1">
+<li><strong>加法</strong>：<span class="math inline">\(\forall u, v \in
+V\)</span>，有 <span class="math inline">\(u + v \in V\)</span></li>
+<li><strong>标量乘法</strong>：<span class="math inline">\(\forall
+\alpha \in \mathbb{R}, v \in V\)</span>，有 <span
+class="math inline">\(\alpha v \in V\)</span></li>
+</ol>
+<p>且满足八条公理：加法结合律、加法交换律、零元、加法逆元、标量乘法的结合律、标量乘法的单位元、标量对向量的分配律、向量对标量的分配律。</p>
+<p>直观上：向量空间是”可以做线性组合的地方”。<span
+class="math inline">\(\mathbb{R}^d\)</span> 是最常见的例子。</p>
+<p><strong><span class="math inline">\(\Omega\)</span> 不是向量空间，但
+<span class="math inline">\(\mathcal{X}(\Omega, \mathcal{C})\)</span>
+是</strong></p>
+<p>这是 3.1 节最核心的洞察。用一个表格对比：</p>
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 27%" />
+<col style="width: 57%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th><span class="math inline">\(\Omega\)</span>（域）</th>
+<th><span class="math inline">\(\mathcal{X}(\Omega,
+\mathcal{C})\)</span>（信号空间）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>是什么</td>
+<td>信号的”地址”集合</td>
+<td>信号的”取值”全体</td>
+</tr>
+<tr>
+<td>元素长什么样</td>
+<td>像素坐标 <span class="math inline">\((i,j)\)</span></td>
+<td>RGB 函数 <span class="math inline">\(x: (i,j) \mapsto
+(R,G,B)\)</span></td>
+</tr>
+<tr>
+<td>能加吗？</td>
+<td>不一定（图节点不能加）</td>
+<td>总能（逐点加）</td>
+</tr>
+<tr>
+<td>有零元吗？</td>
+<td>不一定</td>
+<td>有（逐点为零的函数 <span class="math inline">\(x(u) =
+\mathbf{0}\)</span>）</td>
+</tr>
+<tr>
+<td>是向量空间？</td>
+<td>不一定</td>
+<td><strong>一定是</strong></td>
+</tr>
+</tbody>
+</table>
+<p>一旦 <span class="math inline">\(\mathcal{X}(\Omega,
+\mathcal{C})\)</span> 是向量空间（并且有内积后成为 Hilbert
+空间），我们就可以在其中做：</p>
+<ul>
+<li><strong>线性运算</strong>：卷积、Fourier 变换、Laplacian
+的特征分解</li>
+<li><strong>正交分解</strong>：信号可以投影到正交基上</li>
+<li><strong>范数</strong>：度量信号的”大小”和”距离”</li>
+</ul>
+<p>而这一切都<strong>不要求 <span class="math inline">\(\Omega\)</span>
+本身是向量空间</strong>。这就是为什么线性代数/泛函分析的工具能被用到任意形状的域（图、流形）上——它们不是在域上操作，而是在定义于域上的<strong>信号空间</strong>上操作。</p>
+<h4 id="向量空间结构">向量空间结构</h4>
+<p>虽然 <span class="math inline">\(\Omega\)</span>
+上的点不能相加，但<strong>信号可以</strong>。在 <span
+class="math inline">\(\mathcal{X}(\Omega, \mathcal{C})\)</span>
+上定义逐点运算：</p>
+<p><span class="math display">\[(\alpha x + \beta y)(u) = \alpha x(u) +
+\beta y(u) \quad \forall u \in \Omega\]</span></p>
+<p>其中 <span class="math inline">\(\alpha, \beta \in
+\mathbb{R}\)</span> 是实标量。即：对每个位置 <span
+class="math inline">\(u\)</span>，单独做该位置上的加法和标量乘法。</p>
+<p>这使 <span class="math inline">\(\mathcal{X}(\Omega,
+\mathcal{C})\)</span>
+成为一个<strong>向量空间</strong>。关键洞察是：</p>
+<p><span class="math display">\[\Omega \text{ 不是向量空间}
+\quad\not\Rightarrow\quad \mathcal{X}(\Omega, \mathcal{C}) \text{
+不是向量空间}\]</span></p>
+<p>物理域可以是一般的（图、流形、群），但信号空间总是线性的。</p>
+<h4 id="从向量空间到-hilbert-空间">从向量空间到 Hilbert 空间</h4>
+<p>向量空间给了我们加法和标量乘法。要让几何和正交性有意义，还需要<strong>内积</strong>：</p>
+<ul>
+<li>在通道空间 <span class="math inline">\(\mathcal{C}\)</span>
+上，假设有内积 <span class="math inline">\(\langle \cdot, \cdot
+\rangle_\mathcal{C}\)</span>（例如 <span
+class="math inline">\(\mathbb{R}^s\)</span> 上的标准点积）</li>
+<li>在域 <span class="math inline">\(\Omega\)</span> 上，给定测度 <span
+class="math inline">\(\mu\)</span>（连续域上用 Lebesgue
+测度，离散域上用<strong>计数测度</strong>——此时积分退化为求和）</li>
+<li>在 <span class="math inline">\(\mathcal{X}(\Omega,
+\mathcal{C})\)</span> 上定义内积：</li>
+</ul>
+<p><span class="math display">\[\langle x, y \rangle = \int_{\Omega}
+\langle x(u), y(u) \rangle_{\mathcal{C}} \; d\mu(u)\]</span></p>
+<p>当 <span class="math inline">\(\Omega\)</span> 离散时（如 <span
+class="math inline">\(n \times n\)</span> 网格），上式退化为：</p>
+<p><span class="math display">\[\langle x, y \rangle = \sum_{u \in
+\Omega} \langle x(u), y(u) \rangle_{\mathcal{C}}\]</span></p>
+<p>配备了此内积后，<span class="math inline">\(\mathcal{X}(\Omega,
+\mathcal{C})\)</span> 成为一个 <strong>Hilbert
+空间</strong>（完备的内积空间）。这是后续所有理论的基础——Laplacian
+的特征分解、Fourier 变换在一般域上的推广、卷积的几何定义——全都需要
+Hilbert 空间结构。</p>
+<h4 id="两大几何先验">两大几何先验</h4>
+<p>有了信号空间的定义，可以从域的几何结构中提取两种普遍的归纳偏置：</p>
+<p><strong>1. 对称性（Symmetry）</strong>：域 <span
+class="math inline">\(\Omega\)</span>
+通常具有对称性——平移（网格）、排列（图/集合）、旋转（球面）等。这些对称性构成群，通过群作用传递给信号空间，进而约束能定义在信号上的函数
+<span class="math inline">\(f\)</span>——要求它们是等变或不变的。</p>
+<p><strong>2. 尺度分离（Scale
+Separation）</strong>：将信号转移到域的粗粒化版本上（对 <span
+class="math inline">\(\Omega\)</span>
+做下采样），能保留信号的重要特征。在 CNN
+中体现为池化（pooling）操作。</p>
+<h4 id="一个贯穿全书的例子">一个贯穿全书的例子</h4>
+<p>取 <span class="math inline">\(\Omega = \mathbb{Z}_n \times
+\mathbb{Z}_n\)</span>（<span class="math inline">\(n \times n\)</span>
+的 2D 网格），信号 <span class="math inline">\(x: \Omega \to
+\mathbb{R}^3\)</span> 是一幅 RGB 图像。</p>
+<ul>
+<li><strong>对称性</strong> → 平移不变/等变 → CNN
+中的卷积核<strong>权重共享</strong>：同一个滤波器滑过所有像素位置</li>
+<li><strong>尺度分离</strong> →
+<strong>池化</strong>：在粗粒化的网格上汇总局部信息</li>
+</ul>
+<p>将这两个原理推广到<strong>任意</strong>域（图、流形、群等）并展示它们如何从基本原理出发自然地导出相应的神经架构——这就是几何深度学习的核心任务。</p>
+<blockquote>
+<p>本节为信号空间”搭好了舞台”。下一节（3.2）开始引入”演员”——对称性群及其在信号空间上的作用。</p>
+</blockquote>
+<h3 id="对称性表示与不变性">3.2 对称性、表示与不变性</h3>
+<h4 id="什么是对称性">什么是对称性？</h4>
+<p>非正式地，一个对象或系统的<strong>对称性（symmetry）</strong>
+是一种变换，它使该对象或系统的某些性质保持<strong>不变（invariant）</strong>。这些变换可以是：</p>
+<table>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 27%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr>
+<th>类型</th>
+<th>例子</th>
+<th>应用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>连续（Continuous）</strong></td>
+<td>平移、旋转</td>
+<td>图像分类 → 平移不变；分子性质预测 → 旋转不变</td>
+</tr>
+<tr>
+<td><strong>离散（Discrete）</strong></td>
+<td>排列（permutation）、时间反演</td>
+<td>粒子系统 → 排列不变（粒子无规范顺序）；动力系统 → 时间反演对称</td>
+</tr>
+</tbody>
+</table>
+<p>对称性在机器学习任务中无处不在，只是我们常常习以为常。当我们期望一只猫无论出现在图像的左上角还是右下角都应被分类为”猫”时，我们已经在使用平移对称性作为归纳偏置。</p>
+<h4 id="对称群symmetry-groups">对称群（Symmetry Groups）</h4>
+<p>对称性不是孤立存在的——它们可以被组合。如果 <span
+class="math inline">\(\mathfrak{g}\)</span> 和 <span
+class="math inline">\(\mathfrak{h}\)</span>
+都是对称变换，那么它们的复合（先 <span
+class="math inline">\(\mathfrak{h}\)</span> 后 <span
+class="math inline">\(\mathfrak{g}\)</span>）也是对称变换：若每次变换都不改变对象，复合变换自然也不改变。对称变换总是可逆的，且逆变换也是对称的。</p>
+<p>这些性质使所有对称性的集合构成一个代数结构——<strong>群（Group）</strong>：</p>
+<blockquote>
+<p><strong>群</strong>是一个集合 <span
+class="math inline">\(\mathfrak{G}\)</span> 配上二元运算 <span
+class="math inline">\(\circ : \mathfrak{G} \times \mathfrak{G} \to
+\mathfrak{G}\)</span>（称为<strong>复合</strong>，简写为并列 <span
+class="math inline">\(\mathfrak{g} \circ \mathfrak{h} =
+\mathfrak{g}\mathfrak{h}\)</span>，<strong>从右向左读</strong>：先 <span
+class="math inline">\(\mathfrak{h}\)</span> 后 <span
+class="math inline">\(\mathfrak{g}\)</span>），满足：</p>
+</blockquote>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>公理</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>结合律</strong> <span
+class="math inline">\((\mathfrak{g}\mathfrak{h})\mathfrak{k} =
+\mathfrak{g}(\mathfrak{h}\mathfrak{k})\)</span></td>
+<td>三个变换复合时，括号位置不重要</td>
+</tr>
+<tr>
+<td><strong>单位元</strong> <span class="math inline">\(\exists
+\mathfrak{e}: \mathfrak{e}\mathfrak{g} = \mathfrak{g}\mathfrak{e} =
+\mathfrak{g}\)</span></td>
+<td>“什么都不做”是对称性</td>
+</tr>
+<tr>
+<td><strong>逆元</strong> <span class="math inline">\(\forall
+\mathfrak{g}, \exists \mathfrak{g}^{-1}: \mathfrak{g}\mathfrak{g}^{-1} =
+\mathfrak{g}^{-1}\mathfrak{g} = \mathfrak{e}\)</span></td>
+<td>每个对称变换可以”撤销”</td>
+</tr>
+<tr>
+<td><strong>封闭性</strong> <span class="math inline">\(\forall
+\mathfrak{g}, \mathfrak{h} \in \mathfrak{G}: \mathfrak{g}\mathfrak{h}
+\in \mathfrak{G}\)</span></td>
+<td>两个对称复合后仍是对称</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>注意：<strong>交换性不是公理</strong>。一般的群 <span
+class="math inline">\(\mathfrak{g}\mathfrak{h} \neq
+\mathfrak{h}\mathfrak{g}\)</span>。满足交换性的群称为<strong>交换群</strong>或
+<strong>Abel 群</strong>（以挪威数学家 Niels Henrik Abel
+命名）。群的复合顺序很重要。</p>
+</blockquote>
+<p>一些常见群</p>
+<p><strong>1.<span class="math inline">\(E(d)\)</span> — Euclidean
+群（全等距群）</strong></p>
+<p><span class="math inline">\(E(d)\)</span> 是 <span
+class="math inline">\(d\)</span>
+维欧几里得空间的所有<strong>等距变换</strong>的集合——即保持任意两点距离不变的所有变换。</p>
+<p>包含三种操作：</p>
+<ul>
+<li><strong>平移</strong>：把整个空间沿着某个方向挪</li>
+<li><strong>旋转</strong>：绕着某个轴转</li>
+<li><strong>反射</strong>：沿着某个平面翻转（镜像）</li>
+</ul>
+<p><span class="math inline">\(d\)</span> 是维度：<span
+class="math inline">\(E(2)\)</span> = 平面的等距群，<span
+class="math inline">\(E(3)\)</span> = 3D 空间的等距群。</p>
+<p><strong>2.<span class="math inline">\(SE(d)\)</span> — Special
+Euclidean 群（保定向等距群）</strong></p>
+<p><span class="math inline">\(SE(d)\)</span> 是 <span
+class="math inline">\(E(d)\)</span>
+的<strong>子群</strong>，去掉了反射。</p>
+<p>只包含：平移 + 旋转（及两者的组合）。<span
+class="math inline">\(SE(d)\)</span> 保持距离 <strong>且</strong>
+保持定向——右手坐标系永远是右手坐标系。</p>
+<p>类比：你可以把一张纸在桌上滑动和旋转（<span
+class="math inline">\(SE(2)\)</span>），但你不能把它翻过来（翻面 = 反射
+= 属于 <span class="math inline">\(E(2)\)</span> 但不属于 <span
+class="math inline">\(SE(2)\)</span>）。</p>
+<p><strong>3.<span class="math inline">\(O(d)\)</span> —
+Orthogonal群（正交群，含反射的旋转群）</strong></p>
+<p><span class="math inline">\(O(d)\)</span> 只包含 <span
+class="math inline">\(d\)</span>
+维空间中<strong>保持原点不动</strong>的等距：旋转 +
+反射，但不含平移。</p>
+<p><span class="math inline">\(O(d)\)</span> 里的矩阵满足：<span
+class="math inline">\(\mathbf{R}^\top \mathbf{R} =
+\mathbf{I}\)</span>（正交矩阵）。</p>
+<p><strong>4.<span class="math inline">\(SO(d)\)</span> — Special
+Orthogonal群（特殊正交群，纯旋转群）</strong></p>
+<p><span class="math inline">\(O(d)\)</span> 中去掉反射 =
+只保留旋转。<strong>行列式为 +1</strong> 的正交矩阵。</p>
+<p><span class="math display">\[SO(2) = \text{平面上的纯旋转} \quad
+SO(3) = \text{3D 空间的纯旋转}\]</span></p>
+<p><span class="math inline">\(SO(3)\)</span> 是球面 CNN
+的核心对称群——后续章节会大量出现。</p>
+<h4 id="生成元与-lie-群">生成元与 Lie 群</h4>
+<p>群可以非常庞大甚至无限，但常常可以由少数几个元素生成：</p>
+<ul>
+<li><p><strong>生成元（Generator）</strong>：子集 <span
+class="math inline">\(S \subseteq
+\mathfrak{G}\)</span>，使得每个群元素都可以写成 <span
+class="math inline">\(S\)</span> 中元素及其逆的有限复合</p>
+<ul>
+<li><p>例：等边三角形的对称群 <span class="math inline">\(D_3\)</span> →
+仅需一个 <span class="math inline">\(60^\circ\)</span>
+旋转和一个反射即可生成全部 6 个对称（原文 Figure 4）</p>
+<img src="/2026/07/03/Geometric-Deep-Learning-Note1/image-20260703194328025.png" class="" title="生成元">
+<p>6 个元素可以全部由组合得到。取生成元 <span
+class="math inline">\(R\)</span>（旋转）和 <span
+class="math inline">\(F_1\)</span>（过顶点 1 的反射）：</p>
+<ul>
+<li><span class="math inline">\(R\)</span> → 120° 旋转</li>
+<li><span class="math inline">\(R^2\)</span> → 240° 旋转（= <span
+class="math inline">\(R\)</span> 做两次）</li>
+<li><span class="math inline">\(R^3 = \mathfrak{e}\)</span></li>
+<li><span class="math inline">\(F_1\)</span> → 固定 1 的反射</li>
+<li><span class="math inline">\(F_1 \circ R\)</span> → 先旋转再反射 =
+<span class="math inline">\(F_3\)</span>（固定 3 的反射）</li>
+<li><span class="math inline">\(F_1 \circ R^2\)</span> → <span
+class="math inline">\(F_2\)</span>（固定 2 的反射）</li>
+</ul>
+<p>2 个生成元就生成整个 6 元素群。注意 <span
+class="math inline">\(D_3\)</span> <strong>不是 Abel 群</strong>：<span
+class="math inline">\(R \circ F_1 \neq F_1 \circ R\)</span>（先转后翻 ≠
+先翻后转）——这也是为什么书中强调群的复合顺序很重要。</p></li>
+</ul></li>
+<li><p><strong>Lie 群</strong>：具有微分流形结构的连续对称群</p>
+<ul>
+<li>1D 平移群 → 由无穷小平移生成</li>
+<li><span class="math inline">\(SO(3)\)</span>（3D 旋转）→ 一个 3
+维紧流形，每个 3D 旋转由<strong>旋转轴</strong>（单位向量，2
+个自由度——球面上的一个方向）和<strong>旋转角度</strong>（1
+个自由度）共同决定 = 共 3 个自由度</li>
+</ul>
+<p>对比：</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>离散群 <span class="math inline">\(D_3\)</span></th>
+<th>Lie 群 <span class="math inline">\(SO(3)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>元素个数</td>
+<td>6 个（离散）</td>
+<td>无穷多（连续）</td>
+</tr>
+<tr>
+<td>几何结构</td>
+<td>没有，就是有限集合</td>
+<td>3 维光滑流形</td>
+</tr>
+<tr>
+<td>局部坐标</td>
+<td>无</td>
+<td>可用 3 个连续参数描述</td>
+</tr>
+<tr>
+<td>例子</td>
+<td>三角形的 6 种对称</td>
+<td>3D 空间所有旋转</td>
+</tr>
+</tbody>
+</table></li>
+</ul>
+<h4 id="抽象群-vs-具体群">抽象群 vs 具体群</h4>
+<p>群是<strong>抽象</strong>定义的——只规定元素如何复合，不规定元素”是什么”。因此截然不同的对象可能具有<strong>同一个</strong>对称群：</p>
+<blockquote>
+<p><span class="math inline">\(D_3 \cong
+\Sigma_3\)</span>：等边三角形的旋转/反射对称群 = 三个元素的排列群</p>
+</blockquote>
+<p>这是因为三角形的每个对称变换恰好对应其三个顶点的一个排列：翻转载三个标签，旋转是循环移位。<strong>群的结构相同</strong>，尽管物理实现完全不同。</p>
+<hr />
+<h4 id="群作用group-action">群作用（Group Action）</h4>
+<p>仅有抽象群还不够。GDL 关心的是群<strong>如何作用于数据</strong>。</p>
+<p><strong>第一步：群作用于域 <span
+class="math inline">\(\Omega\)</span></strong></p>
+<p>群 <span class="math inline">\(\mathfrak{G}\)</span> 在域 <span
+class="math inline">\(\Omega\)</span>
+上的（左）<strong>群作用</strong>是一个映射：</p>
+<p><span class="math display">\[(\mathfrak{g}, u) \mapsto
+\mathfrak{g}.u\]</span></p>
+<p>将群元素 <span class="math inline">\(\mathfrak{g} \in
+\mathfrak{G}\)</span> 和点 <span class="math inline">\(u \in
+\Omega\)</span> 关联到 <span class="math inline">\(\Omega\)</span>
+中的另一点，且与群运算兼容：</p>
+<p><span class="math display">\[\mathfrak{g}.(\mathfrak{h}.u) =
+(\mathfrak{g}\mathfrak{h}).u\]</span></p>
+<p>例：Euclidean 群 <span class="math inline">\(E(2)\)</span> 作用在平面
+<span class="math inline">\(\mathbb{R}^2\)</span>
+上——平移、旋转、反射将平面上的点映射到另一点。</p>
+<p>例：假设 <span class="math inline">\(\Omega\)</span> 是一条直线（1D
+空间），<span class="math inline">\(\mathfrak{G}\)</span>
+是平移群。<span class="math inline">\(g = +3\)</span> 表示”向右平移 3
+个单位”。</p>
+<p>群作用 <span class="math inline">\(g.u\)</span> 就是把点 <span
+class="math inline">\(u\)</span> 按规则 <span
+class="math inline">\(g\)</span> 挪到新位置：</p>
+<p><span class="math display">\[g.u = u + 3\]</span></p>
+<p><span class="math inline">\(u = 5\)</span>，则 <span
+class="math inline">\(g.u = 5 + 3 =
+8\)</span>。这是对空间上的点的操作。</p>
+<p><strong>第二步：群作用于信号空间 <span
+class="math inline">\(\mathcal{X}(\Omega)\)</span></strong></p>
+<p>域 <span class="math inline">\(\Omega\)</span>
+上的群作用<strong>自动诱导</strong>出信号空间 <span
+class="math inline">\(\mathcal{X}(\Omega)\)</span> 上的群作用：</p>
+<p><span class="math display">\[\boxed{(\mathfrak{g}.x)(u) =
+x(\mathfrak{g}^{-1}u)}\]</span></p>
+<p>这是全书最重要的公式之一。逐字解释：</p>
+<ul>
+<li>输入：一个群元素 <span class="math inline">\(\mathfrak{g}\)</span>
+和一个信号 <span class="math inline">\(x\)</span></li>
+<li>输出：一个新的信号 <span
+class="math inline">\(\mathfrak{g}.x\)</span></li>
+<li>这个新信号在点 <span class="math inline">\(u\)</span> 处的值 =
+原信号 <span class="math inline">\(x\)</span> 在<strong>被 <span
+class="math inline">\(\mathfrak{g}^{-1}\)</span>
+拉回的点</strong>处的值</li>
+</ul>
+<p><strong>为什么是 <span
+class="math inline">\(\mathfrak{g}^{-1}\)</span> 而非 <span
+class="math inline">\(\mathfrak{g}\)</span>？</strong> 验证兼容性：</p>
+<p><span class="math display">\[(\mathfrak{g}.(\mathfrak{h}.x))(u) =
+(\mathfrak{h}.x)(\mathfrak{g}^{-1}u) =
+x(\mathfrak{h}^{-1}\mathfrak{g}^{-1}u) =
+x((\mathfrak{g}\mathfrak{h})^{-1}u) =
+((\mathfrak{g}\mathfrak{h}).x)(u)\]</span></p>
+<p>若不加逆，则顺序会颠倒为 <span
+class="math inline">\(x(\mathfrak{h}^{-1}\mathfrak{g}^{-1}u)\)</span> →
+<span
+class="math inline">\(x((\mathfrak{h}\mathfrak{g})^{-1}u)\)</span>，与群复合顺序冲突。<strong>逆元的出现保证了这是一个合法的（左）群作用。</strong></p>
+<p><strong><span class="math inline">\(g^{-1}\)</span>
+的出现不是数学的奇技淫巧，而是物理直觉的自然结果：要计算信号被 g
+变换后在 u 处的值，你需要回溯到 g 变换之前的那个位置——即用 g
+的逆拉回。</strong></p>
+<p>同一个群 <span class="math inline">\(E(2)\)</span>
+既作用在平面上（挪动点），也作用在图像空间上（挪动整个图像）。更重要的是，它还会作用在神经网络学到的<strong>表示空间</strong>上——这种”穿透性”使得几何约束可以贯穿整个网络。</p>
+<p>例：信号 <span class="math inline">\(x\)</span> 是定义在 <span
+class="math inline">\(\Omega\)</span> 上的函数，比如 <span
+class="math inline">\(x(u) = u^2\)</span>（一条抛物线）。</p>
+<p>现在问题来了：把信号<strong>向右平移 3</strong>，新的信号 <span
+class="math inline">\(x&#39;\)</span> 应该是什么？</p>
+<p>直觉：原来在位置 <span class="math inline">\(u=5\)</span> 的值 <span
+class="math inline">\(x(5) = 25\)</span>，平移后应该出现在位置 <span
+class="math inline">\(u=8\)</span>。换言之，新信号在 <span
+class="math inline">\(u=8\)</span> 的值 = 旧信号在 <span
+class="math inline">\(u=5\)</span> 的值。</p>
+<p><span class="math display">\[x&#39;(8) = x(5) = x(8 - 3) = x(g^{-1}
+\cdot 8)\]</span></p>
+<p>因为 <span class="math inline">\(g = +3\)</span>，<span
+class="math inline">\(g^{-1} = -3\)</span>，<span
+class="math inline">\(g^{-1}.u = u - 3\)</span>。</p>
+<p>所以新信号的定义：</p>
+<p><span class="math display">\[x&#39;(u) = x(u - 3) =
+x(g^{-1}u)\]</span></p>
+<p>用群作用的符号写成：</p>
+<p><span class="math display">\[(g.x)(u) = x(g^{-1}u)\]</span></p>
+<hr />
+<h4 id="群表示group-representation">群表示（Group Representation）</h4>
+<p>最重要的群作用是<strong>线性群作用</strong>，即<strong>群表示</strong>。信号空间上的作用
+<span class="math inline">\((\mathfrak{g}.x)(u) =
+x(\mathfrak{g}^{-1}u)\)</span> 恰好是线性的：</p>
+<p><span class="math display">\[\mathfrak{g}.(\alpha x + \beta x&#39;) =
+\alpha(\mathfrak{g}.x) + \beta(\mathfrak{g}.x&#39;)\]</span></p>
+<p>此处 <span class="math inline">\(\alpha,\beta\)</span>
+是系数，不是变换。</p>
+<p>我们可以等价地将线性作用描述为从群到矩阵的映射（为变换写一个矩阵表示）：</p>
+<blockquote>
+<p><span class="math inline">\(n\)</span> 维<strong>实表示</strong>
+<span class="math inline">\(\rho: \mathfrak{G} \to \mathbb{R}^{n \times
+n}\)</span> 为每个 <span class="math inline">\(\mathfrak{g} \in
+\mathfrak{G}\)</span> 分配一个可逆矩阵 <span
+class="math inline">\(\rho(\mathfrak{g})\)</span>，满足： <span
+class="math display">\[\rho(\mathfrak{g}\mathfrak{h}) =
+\rho(\mathfrak{g})\rho(\mathfrak{h})\]</span>
+这称为<strong>同态（homomorphism）</strong>
+性质：群复合对应矩阵乘法。先做 <span class="math inline">\(h\)</span>
+再做 <span class="math inline">\(g\)</span>（群复合 <span
+class="math inline">\(gh\)</span>），和”先用矩阵 <span
+class="math inline">\(\rho(h)\)</span> 作用再用矩阵 <span
+class="math inline">\(\rho(g)\)</span> 作用（矩阵乘法 <span
+class="math inline">\(\rho(g)\rho(h)\)</span>）“完全等价。一旦有了矩阵，线性代数知识就都能用上了。</p>
+</blockquote>
+<p>几个要点：</p>
+<ul>
+<li><p><strong>表示维度 <span class="math inline">\(n\)</span>
+与群维度无关</strong>：<span class="math inline">\(n\)</span>
+是表示空间（如特征空间）的维度，在深度学习中通常对应特征通道数或像素数。例如
+2D 平移群作用在 <span class="math inline">\(n\)</span>
+个像素的图像空间上</p></li>
+<li><p><strong>正则表示</strong>：在信号空间上 <span
+class="math inline">\(\rho(\mathfrak{g})x(u) =
+x(\mathfrak{g}^{-1}u)\)</span>，这是 GDL 中最常见的表示形式</p></li>
+<li><p><strong>酉表示（Unitary）</strong>/<strong>正交表示（Orthogonal）</strong>：若对所有
+<span class="math inline">\(\mathfrak{g}\)</span>，<span
+class="math inline">\(\rho(\mathfrak{g})\)</span> 是酉矩阵 /
+正交矩阵。这类表示在理论和计算上都特别友好——它们在后续的 Fourier
+分析和谱方法中将起关键作用</p></li>
+<li><p>当 <span class="math inline">\(\Omega\)</span>
+无穷时（连续域），<span
+class="math inline">\(\rho(\mathfrak{g})\)</span>
+是无限维线性算子而非有限维矩阵；实际应用中总是离散化为有限网格</p></li>
+</ul>
+<hr />
+<h4 id="三个空间gdl-的核心图景">三个空间：GDL 的核心图景</h4>
+<p>原文 Figure 5 展示了 GDL 的三个关键空间及其关系：</p>
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 26%" />
+<col style="width: 47%" />
+</colgroup>
+<thead>
+<tr>
+<th>空间</th>
+<th>含义</th>
+<th>群如何作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="math inline">\(\Omega\)</span></td>
+<td>物理域（网格、图、流形）</td>
+<td><span class="math inline">\(\mathfrak{g}.u\)</span> —
+挪动域上的点</td>
+</tr>
+<tr>
+<td><span class="math inline">\(\mathcal{X}(\Omega)\)</span></td>
+<td>信号空间（函数空间）</td>
+<td><span class="math inline">\(\rho(\mathfrak{g})x\)</span> —
+通过表示作用</td>
+</tr>
+<tr>
+<td><span
+class="math inline">\(\mathcal{F}(\mathcal{X}(\Omega))\)</span></td>
+<td>假设类（我们学习的函数）</td>
+<td>被对称性<strong>约束</strong>——要求 <span
+class="math inline">\(f\)</span> 是等变或不变的</td>
+</tr>
+</tbody>
+</table>
+<img src="/2026/07/03/Geometric-Deep-Learning-Note1/image-20260703194508398.png" class="" title="三个空间">
+<p>这是一个”传导链”：域的对称性 → 信号空间的表示 →
+假设类的结构约束。正是这一链条将几何转化为归纳偏置。</p>
+<hr />
+<h4 id="不变性invariance">不变性（Invariance）</h4>
+<p>域 <span class="math inline">\(\Omega\)</span>
+的对称性将结构施加于作用于信号上的函数 <span
+class="math inline">\(f\)</span>，强制缩小可能的插值函数空间 <span
+class="math inline">\(\mathcal{F}(\mathcal{X}(\Omega))\)</span>——这就是对称性作为归纳偏置的精确数学机制。</p>
+<blockquote>
+<p>函数 <span class="math inline">\(f: \mathcal{X}(\Omega) \to
+\mathcal{Y}\)</span> 是 <strong><span
+class="math inline">\(\mathfrak{G}\)</span>-不变的</strong>，如果：
+<span class="math display">\[f(\rho(\mathfrak{g})x) = f(x) \quad \forall
+\mathfrak{g} \in \mathfrak{G}, \; \forall x \in
+\mathcal{X}(\Omega)\]</span> 输出不受群作用的影响。</p>
+</blockquote>
+<p><strong>经典例子：平移不变的图像分类</strong></p>
+<ul>
+<li>猫在图像左上角还是右下角 → 分类结果应该相同</li>
+<li>输出是单个类别标签（<span class="math inline">\(\mathcal{Y}\)</span>
+是一组概率值）</li>
+<li><strong>多层感知机（MLP）没有这个性质</strong>——这是 1970 年代 MLP
+在模式识别中失败的核心原因之一：MLP
+把移位后的同一张图像当作完全不同的输入向量</li>
+<li><strong>CNN
+的出现</strong>很大程度是为了满足平移不变性：局部权重共享的卷积核 +
+全局池化 = 有效的平移不变架构</li>
+</ul>
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 17%" />
+<col style="width: 56%" />
+</colgroup>
+<thead>
+<tr>
+<th>符号</th>
+<th>含义</th>
+<th>具体例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="math inline">\(x\)</span></td>
+<td>输入信号</td>
+<td>一张猫的图片（<span class="math inline">\(256 \times 256\)</span>
+像素网格上的 RGB 值）</td>
+</tr>
+<tr>
+<td><span class="math inline">\(\mathfrak{g}\)</span></td>
+<td>群中的一个变换</td>
+<td>“向右平移 10 像素”</td>
+</tr>
+<tr>
+<td><span class="math inline">\(\rho(\mathfrak{g})\)</span></td>
+<td>该变换的矩阵表示</td>
+<td>把图像整体平移的线性算子</td>
+</tr>
+<tr>
+<td><span class="math inline">\(\rho(\mathfrak{g})x\)</span></td>
+<td>变换后的信号</td>
+<td>猫<strong>移到右边 10 像素</strong>后的图片</td>
+</tr>
+<tr>
+<td><span class="math inline">\(f(\cdot)\)</span></td>
+<td>我们想学习的函数</td>
+<td>一个图像分类器</td>
+</tr>
+<tr>
+<td><span class="math inline">\(f(x)\)</span></td>
+<td>原图的输出</td>
+<td>输入原图 → 输出 “猫”</td>
+</tr>
+<tr>
+<td><span class="math inline">\(f(\rho(\mathfrak{g})x)\)</span></td>
+<td>变换后图片的输出</td>
+<td>输入右移 10 像素的图 → 输出 ???</td>
+</tr>
+</tbody>
+</table>
+<p>不变性要求两者<strong>相等</strong>：<span
+class="math inline">\(f(\rho(\mathfrak{g})x) = f(x)\)</span></p>
+<h4 id="等变性equivariance">等变性（Equivariance）</h4>
+<p>然而仔细检查 CNN
+的卷积层会发现：它们并非平移不变，而是<strong>平移等变</strong>——输入的平移导致输出特征图<strong>同幅度</strong>的平移。</p>
+<blockquote>
+<p>函数 <span class="math inline">\(f: \mathcal{X}(\Omega) \to
+\mathcal{X}(\Omega)\)</span> 是 <strong><span
+class="math inline">\(\mathfrak{G}\)</span>-等变的</strong>，如果：
+<span class="math display">\[f(\rho(\mathfrak{g})x) = \rho(\mathfrak{g})
+f(x) \quad \forall \mathfrak{g} \in \mathfrak{G}, \; \forall x \in
+\mathcal{X}(\Omega)\]</span>
+输入上的群作用在输出上被<strong>忠实地再现</strong>。</p>
+</blockquote>
+<p><strong>更一般的形式</strong>：当输入和输出具有不同的域或不同的表示时，
+<span class="math display">\[f(\rho(\mathfrak{g})x) =
+\rho&#39;(\mathfrak{g}) f(x)\]</span></p>
+<p>其中 <span class="math inline">\(\rho, \rho&#39;\)</span> 是同一个群
+<span class="math inline">\(\mathfrak{G}\)</span> 的不同表示。</p>
+<p><strong>经典例子：平移等变的图像分割</strong></p>
+<ul>
+<li>输入：RGB 图像 → 域 = 网格，<span class="math inline">\(\mathcal{C}
+= \mathbb{R}^3\)</span></li>
+<li>输出：像素级分割掩码 → 域 = 同一网格，<span
+class="math inline">\(\mathcal{C}&#39; =
+\mathbb{R}^{(\text{类别数})}\)</span></li>
+<li>输入左移 5 像素 → 分割掩码也左移 5 像素（等变），而非不变</li>
+</ul>
+<h4 id="不变性-vs-等变性并非二选一">不变性 vs 等变性：并非二选一</h4>
+<p>整个 CNN 的分类流水线就是等变和不变的分工合作：</p>
+<p><span class="math display">\[\text{卷积层（等变）} \to \cdots \to
+\text{卷积层（等变）} \to \text{全局池化（不变）}\]</span></p>
+<p>等变层保持空间信息，逐层构建越来越抽象的特征；最后的全局池化将等变特征”折叠”为不变输出。这是
+GDL 蓝图（3.6 节）的核心模式，对 CNN、GNN 等都适用。</p>
+<h4 id="为什么仅有线性不变量不够">为什么仅有线性不变量不够？</h4>
+<p>先看有限群的情形，假设 <span
+class="math inline">\(\mathfrak{G}\)</span> 只有有限个元素（比如 <span
+class="math inline">\(D_3\)</span> 有 6
+个元素）。群上的”平均值”就是普通的算术平均：<span
+class="math display">\[A(x) = \frac{1}{|\mathfrak{G}|}
+\sum_{\mathfrak{g} \in \mathfrak{G}} \mathfrak{g}.x\]</span></p>
+<p>若<span class="math inline">\(f\)</span>
+既是<strong>线性的</strong>，又是<strong><span
+class="math inline">\(\mathfrak{G}\)</span>-不变的</strong>。</p>
+<p><strong>因为 <span class="math inline">\(f\)</span>
+是不变的</strong>：对每个集合中的群元素 <span
+class="math inline">\(\mathfrak{g}\)</span>，<span
+class="math inline">\(f(x) = f(\mathfrak{g}.x)\)</span>。也就是说：</p>
+<p><span class="math display">\[f(x) = f(\mathfrak{g}_1.x) =
+f(\mathfrak{g}_2.x) = \cdots = f(\mathfrak{g}_6.x)\]</span></p>
+<p>全部相等。那么取平均当然还是同一个值：</p>
+<p><span class="math display">\[f(x) = \frac{1}{6} \left[
+f(\mathfrak{g}_1.x) + f(\mathfrak{g}_2.x) + \cdots + f(\mathfrak{g}_6.x)
+\right]\]</span></p>
+<p><strong>因为 <span class="math inline">\(f\)</span>
+是线性的</strong>：<span class="math inline">\(f(a + b) = f(a) +
+f(b)\)</span> 且 <span class="math inline">\(f(\alpha a) = \alpha
+f(a)\)</span>。所以可以把 <span class="math inline">\(f\)</span>
+从求和号里提出来：</p>
+<p><span class="math display">\[f(x) = f\left( \frac{1}{6} \left[
+\mathfrak{g}_1.x + \mathfrak{g}_2.x + \cdots + \mathfrak{g}_6.x \right]
+\right)\]</span></p>
+<p>括号里的东西正好就是群平均 <span
+class="math inline">\(A(x)\)</span>所以：</p>
+<p><span class="math display">\[f(x) = f(A(x))\]</span></p>
+<p>得出结论：<strong><span class="math inline">\(f\)</span>
+只能”看到”群平均这个单一信息。</strong> 所有精细结构都被洗掉了。</p>
+<p>举个例子：<strong>图像 + 平移群</strong></p>
+<p><span class="math inline">\(x =\)</span> 一张猫的图片。<span
+class="math inline">\(\mathfrak{G} =\)</span>
+所有可能的平移（把图像上下左右挪）。群平均：</p>
+<p><span class="math display">\[A(x) =
+\text{对所有平移位置取平均}\]</span></p>
+<p>结果是什么？图像中每个像素的 RGB
+值被平均成一个全局常数——<strong>整张图像变成一种单一的平均颜色</strong>。</p>
+<p>这说明线性 + 不变 = 太强了。两者的组合把所有信息都”平均掉了”。</p>
+<p>但<strong>线性 +
+等变</strong>是好的。等变不需要平均——它保留空间结构，只是跟着变换一起挪位置：</p>
+<p><span class="math display">\[f(\rho(\mathfrak{g})x) =
+\rho(\mathfrak{g}) f(x)\]</span></p>
+<p>然后逐层加非线性 <span class="math inline">\(\sigma\)</span>：<span
+class="math inline">\(\sigma \circ f\)</span>
+仍然是等变的。非线性给了表达力（不洗掉信息），等变给了几何结构（保留域上的空间关系）。最后一层才做一次不变池化（全局平均或最大池化）——在最高语义层把空间信息折叠掉，获得变换不变的最终输出。</p>
+<p>再看连续群的情形，连续群（如平移群 <span
+class="math inline">\(\mathbb{R}\)</span>、旋转群 <span
+class="math inline">\(SO(3)\)</span>）有无穷多个元素，求和变成积分：</p>
+<p><span class="math display">\[\frac{1}{|\mathfrak{G}|}
+\sum_{\mathfrak{g}} \quad\to\quad \frac{1}{\mu(\mathfrak{G})}
+\int_{\mathfrak{G}} d\mu(\mathfrak{g})\]</span></p>
+<p>一个深刻的观察：如果 <span class="math inline">\(f\)</span>
+同时满足<strong>线性</strong>和 <strong><span
+class="math inline">\(\mathfrak{G}\)</span>-不变</strong>，则：</p>
+<p><span class="math display">\[f(x) = \frac{1}{\mu(\mathfrak{G})}
+\int_{\mathfrak{G}} f(\mathfrak{g}.x) \, d\mu(\mathfrak{g}) =
+f\!\left(\frac{1}{\mu(\mathfrak{G})} \int_{\mathfrak{G}}
+(\mathfrak{g}.x) \, d\mu(\mathfrak{g})\right)\]</span></p>
+<p>（<span class="math inline">\(\mu(\mathfrak{g})\)</span> 是群上的
+<strong>Haar
+测度</strong>——群上的”均匀分布”，核心性质是<strong>平移不变</strong>：<span
+class="math inline">\(\mu(\mathfrak{h} \cdot S) =
+\mu(S)\)</span>——群中任意子集 <span class="math inline">\(S\)</span>
+的”体积”不随群元素 <span class="math inline">\(\mathfrak{h}\)</span>
+的挪动而改变。就像 Lebesgue 测度在 <span
+class="math inline">\(\mathbb{R}\)</span>
+上是平移不变的同行——你测量一个区间的长度，不因区间挪了位置而改变；积分遍历整个群。）</p>
+<p>这意味着 <span class="math inline">\(f\)</span> 仅依赖于 <span
+class="math inline">\(x\)</span> 的<strong>群平均</strong> <span
+class="math inline">\(A(x) = \frac{1}{\mu(\mathfrak{G})}
+\int_{\mathfrak{G}} (\mathfrak{g}.x) \,
+d\mu(\mathfrak{g})\)</span>。</p>
+<p>具体后果： - <strong>图像 + 平移群</strong>：<span
+class="math inline">\(A(x) =\)</span> 整个图像所有像素的 RGB
+平均值。一个分类器若只看平均颜色，几乎什么也分不出来 - <strong>图 +
+排列群</strong>：<span class="math inline">\(A(x) =\)</span>
+所有节点特征的平均值。丢失了全部图结构信息</p>
+<p><strong>结论</strong>：线性不变量的表达力太弱。但<strong>线性等变量</strong>通过与非线性的组合，可以构建出丰富且稳定的特征——这是深度几何架构设计的核心动机。</p>
+<h3 id="同构与自同构isomorphisms-and-automorphisms">3.3
+同构与自同构（Isomorphisms and Automorphisms）</h3>
+<h4
+id="什么是对称性取决于保留了什么结构">什么是”对称性”取决于保留了什么结构</h4>
+<p>前文的讨论隐含了一个问题：<strong>什么变换算作”对称”</strong>？答案取决于我们选择保留域的哪些结构。这引出一个重要概念：域
+<span class="math inline">\(\Omega\)</span>
+上可以叠加<strong>多个层次的结构</strong>，每个层次对应一个不同的对称群。</p>
+<blockquote>
+<p><strong>同构（Isomorphism）</strong>：来自希腊语”相等的形状”。不同对象间可逆且保结构的映射。对象到自身的同构
+= <strong>自同构（Automorphism）</strong>= 对称性。</p>
+</blockquote>
+<h4 id="结构层次从粗到细">结构层次：从粗到细</h4>
+<p>在最低层次上，<span class="math inline">\(\Omega\)</span>
+仅仅是一个<strong>集合</strong>，只有
+<strong>基数（cardinality）</strong>概念（有限集 = 元素个数；无限集 =
+可数无穷 vs 连续统）。保结构的自映射 =
+<strong>双射（bijection）</strong>（可逆映射，一一对应、无遗漏）。双射是集合层面”保结构”的映射，因为集合的唯一”结构”就是它的元素及元素个数。双射不丢失、不复制元素——基数被完美保留。</p>
+<p>集合的所有双射构成集合自同构群 <span
+class="math inline">\(\mathrm{Aut}(\Omega)\)</span>。</p>
+<blockquote>
+<p>验证它确实是群：(1)双射的复合仍是双射（封闭性），(2)复合本质上有结合性，(3)群内存在恒等映射
+<span class="math inline">\(\tau(u) = u\)</span>
+是单位元，(4)每个双射按定义存在逆（满足 <span class="math inline">\(\tau
+\circ \tau^{-1} = \tau^{-1} \circ \tau = \mathrm{id}\)</span>）。</p>
+</blockquote>
+<p>即使是信息最贫乏的情形（只知道 <span
+class="math inline">\(\Omega\)</span>
+是集合），“所有对称性”也已经自然地形成一个群。当往 <span
+class="math inline">\(\Omega\)</span>
+上添加更多结构（距离、光滑性），只是在这个大群里选取满足额外条件的子群。整条”结构层次”链就是逐步缩小子群的过程。</p>
+<p><span class="math display">\[\mathrm{Diff}(\Omega) \subset
+\mathrm{Homeo}(\Omega) \subset \mathrm{Aut}_{set}(\Omega)\]</span></p>
+<p>而最顶层的集合自同构群 <span
+class="math inline">\(\mathrm{Aut}(\Omega)\)</span> = 所有排列的集合 =
+<span class="math inline">\(\Sigma_n\)</span>——这恰好是 GNN 和 Deep Sets
+中的排列对称群。这个群不是人为选的，而是从集合的最简定义中自然涌现的。</p>
+<p>根据应用需要，可以逐层增加结构——每加一层，相应的保结构映射群就缩小：</p>
+<table>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 32%" />
+<col style="width: 13%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr>
+<th>结构层次</th>
+<th>保结构的映射</th>
+<th>群</th>
+<th>直观理解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>集合</strong>（仅有基数）</td>
+<td>双射（Bijection）</td>
+<td><span class="math inline">\(\mathrm{Aut}(\Omega)\)</span></td>
+<td>只要”一一对应”即可</td>
+</tr>
+<tr>
+<td><strong>拓扑</strong>（连续性）</td>
+<td>同胚（Homeomorphism）</td>
+<td></td>
+<td>连续且逆连续；邻域映射到邻域</td>
+</tr>
+<tr>
+<td><strong>微分</strong>（光滑性）</td>
+<td>微分同胚（Diffeomorphism）</td>
+<td><span class="math inline">\(\mathrm{Diff}(\Omega)\)</span></td>
+<td>可微且逆可微；流形结构</td>
+</tr>
+<tr>
+<td><strong>度量</strong>（距离）</td>
+<td>等距（Isometry）</td>
+<td><span class="math inline">\(E(d)\)</span></td>
+<td>保距离；刚体运动</td>
+</tr>
+<tr>
+<td><strong>定向</strong></td>
+<td>保定向映射</td>
+<td><span class="math inline">\(SE(d)\)</span></td>
+<td>不含反射/翻转</td>
+</tr>
+</tbody>
+</table>
+<p>每一层都对映射施加了更严格的条件： -
+<strong>双射</strong>：仅要求一一对应——“所有点还在，且没有重复” -
+<strong>同胚</strong>：连续且逆连续——“把咖啡杯连续变形为甜甜圈”在拓扑学中是合法的（两者同胚）
+-
+<strong>微分同胚</strong>：光滑且逆光滑(可以取任意阶导数)——不允许尖角或断裂——“橡胶膜的拉伸但不能撕破”
+-
+<strong>等距</strong>：保距离——“只允许刚体运动（旋转+平移）”，远严格于微分同胚（不允许拉伸、压缩、任何形变），出现了距离的概念（给出一个<strong>函数</strong>
+<span class="math inline">\(d(u,v)\)</span>
+为任意两点赋予一个非负实数），满足下面三条性质 -
+<strong>同一性</strong>：<span class="math inline">\(d(u,v) = 0\)</span>
+当且仅当 <span class="math inline">\(u = v\)</span>（不重合的两个点距离
+&gt; 0） - <strong>对称性</strong>：<span class="math inline">\(d(u,v) =
+d(v,u)\)</span>（A 到 B 的距离 = B 到 A） -
+<strong>三角不等式</strong>：<span class="math inline">\(d(u,v) \leq
+d(u,w) + d(w,v)\)</span>（绕道必定不近于直走） -
+<strong>保定向</strong>：连续群 <span
+class="math inline">\(SO(d)\)</span> vs 含反射的全等距群 <span
+class="math inline">\(E(d)\)</span>——“右手系不能变成左手系” - <span
+class="math inline">\(E(2)\)</span> 包含反射（翻转），反射改变定向 -
+<span class="math inline">\(SE(2)\)</span> 从 <span
+class="math inline">\(E(2)\)</span>
+中去掉反射，只保留旋转和平移——保定向的等距 - <span
+class="math inline">\(SE(2) \subset E(2) \subset
+\mathrm{Diff}(2)\)</span></p>
+<h4 id="为什么选择正确的层次至关重要">为什么选择正确的层次至关重要</h4>
+<p>书中用两个医学影像的对比示例说明：</p>
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 52%" />
+<col style="width: 24%" />
+</colgroup>
+<thead>
+<tr>
+<th>任务</th>
+<th>正确的结构层次</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>组织病理切片分割</strong></td>
+<td>含反射的等距 <span class="math inline">\(E(2)\)</span></td>
+<td>样本可在显微镜下被翻转——翻转后仍是同一样本</td>
+</tr>
+<tr>
+<td><strong>交通标志分类</strong></td>
+<td>仅保定向的 <span class="math inline">\(SE(2)\)</span></td>
+<td>反射会改变标志含义（左转箭头翻转后 = 右转）</td>
+</tr>
+</tbody>
+</table>
+<p>这意味着<strong>没有普适的”正确”对称群</strong>——群的选择是问题特定的，取决于你对数据生成过程的理解。</p>
+<h4 id="子群用数学语言编码更多结构">子群：用数学语言编码”更多结构”</h4>
+<p>添加结构 = 选择原群的<strong>子群</strong>：</p>
+<blockquote>
+<p><span class="math inline">\(\mathfrak{H} \subseteq
+\mathfrak{G}\)</span> 是 <span
+class="math inline">\(\mathfrak{G}\)</span>
+的<strong>子群</strong>，如果 <span class="math inline">\((\mathfrak{H},
+\circ)\)</span>
+本身构成一个群（封闭、含有单位元、对每个元素有逆元）。</p>
+</blockquote>
+<p>子群关系链： <span class="math display">\[\mathrm{SE}(2) \subset
+\mathrm{E}(2) \subset \mathrm{Diff}(2)\]</span></p>
+<p>保定向刚体运动 ⊂ 全等距 ⊂ 所有光滑形变。群越小 → 不变量越多 →
+约束越强 → 样本效率越高（但也可能过度约束）。</p>
+<p>这正好呼应了前言中 <strong>Erlangen 纲领的逻辑</strong>：在 Klein
+的构造中，射影几何、仿射几何、欧氏几何分别对应逐步缩小的群——群越小，保留的不变量越多，几何”越刚性”。</p>
+<hr />
+<h4 id="自同构-vs-同构为什么需要区分">自同构 vs
+同构：为什么需要区分？</h4>
+<p>本书使用精确的术语：</p>
+<ul>
+<li><strong>自同构（Automorphism）</strong> <span
+class="math inline">\(\tau: \Omega \to
+\Omega\)</span>：对象到<strong>自身</strong>的保结构映射 =
+<strong>对称性</strong></li>
+<li><strong>同构（Isomorphism）</strong> <span
+class="math inline">\(\eta: \Omega \to
+\Omega&#39;\)</span>：两个<strong>不同</strong>对象间的保结构映射</li>
+</ul>
+<p>这两个概念常被混用，但区分它们对 GDL 的清晰性至关重要。</p>
+<p><strong>集合的例子</strong>：<span class="math inline">\(\Omega =
+\{0, 1, 2\}\)</span></p>
+<p>自同构：<span class="math inline">\(\tau(u) = u + 1 \bmod
+3\)</span>（循环移位）——把 <span
+class="math inline">\(\{0,1,2\}\)</span> 映射回自身，保基数。</p>
+<p>同构：<span class="math inline">\(\Omega&#39; = \{a, b,
+c\}\)</span>，定义 <span class="math inline">\(\eta(0) = a, \eta(1) = b,
+\eta(2) = c\)</span>——这是一个集合同构，<span
+class="math inline">\(\Omega\)</span> 和 <span
+class="math inline">\(\Omega&#39;\)</span>
+在集合论意义上”完全相同”（仅名称不同）。</p>
+<p><strong>图的例子</strong>（第 2 文档将详细展开）：设 <span
+class="math inline">\(\mathcal{G} = (\mathcal{V}, \mathcal{E})\)</span>
+为图，<span class="math inline">\(\mathcal{V}\)</span> = 节点，<span
+class="math inline">\(\mathcal{E}\)</span> = 边。</p>
+<ul>
+<li><strong>图同构</strong> <span class="math inline">\(\eta:
+\mathcal{V} \to \mathcal{V}&#39;\)</span>：节点间的双射，使得 <span
+class="math inline">\((u,v) \in \mathcal{E}\)</span> 当且仅当 <span
+class="math inline">\((\eta(u), \eta(v)) \in
+\mathcal{E}&#39;\)</span>。两个同构的图<strong>结构完全相同</strong>，仅节点编号不同。</li>
+<li><strong>图自同构</strong> <span class="math inline">\(\tau:
+\mathcal{V} \to
+\mathcal{V}\)</span>：节点到自身的排列，保边连接。非平凡自同构（<span
+class="math inline">\(\tau \neq
+\mathrm{id}\)</span>）的存在意味着图具有对称性。</li>
+</ul>
+<blockquote>
+<p><strong>Folkman 图</strong>是图自同构的经典范例——一种有着 3840
+个自同构的图，可以用许多对称的方式画出来。</p>
+</blockquote>
+<h4 id="为什么这对-gdl-很重要">为什么这对 GDL 很重要？</h4>
+<p>对于 GDL，同构和自同构都至关重要：</p>
+<ul>
+<li><strong>对称性（自同构）</strong> →
+通过等变/不变层编码进网络架构（3.2 节的内容）</li>
+<li><strong>同构</strong> →
+要求网络对结构相同但表示不同的对象给出<strong>相同的答案</strong>——两个仅仅是节点编号不同的图应当得到相同的分类结果</li>
+</ul>
+<p>但现实世界充满噪声。精确的同构/自同构假设在以下情形下崩溃： -
+图被轻微编辑（丢失或新增了边） -
+图像被微小形变（不完全是一个平移，但”几乎”是） - 3D 形状被非刚性拉伸</p>
+<p>这自然引向下一节的主题：<strong>形变稳定性</strong>——从精确对称性到”近似对称性”的过渡。</p>
+<h3 id="形变稳定性deformation-stability">3.4 形变稳定性（Deformation
+Stability）</h3>
+<h4 id="精确对称性的两个失败模式">精确对称性的两个失败模式</h4>
+<p>第 3.2–3.3
+节的形式化捕捉的是一个<strong>理想化世界</strong>：我们精确知道哪些变换算作对称性，并要求函数对这些变换<strong>精确</strong>等变或不变。在计算机视觉中，这相当于假设”平面平移是精确对称性”——物体平移后，语义完全相同。</p>
+<p>现实世界中的噪声使这一模型在两个方向上失效：</p>
+<p><strong>失败模式 1：全局对称性无法捕获局部变化</strong></p>
+<p>考虑一段视频：画面中有多辆车，每辆车沿着自己的方向、以自己的速度行驶。下一帧中：</p>
+<ul>
+<li>没有<strong>一个单一的全局平移</strong>能解释从一帧到下一帧的变换</li>
+<li>但语义信息（“画面中有车在行驶”）大致保持不变</li>
+</ul>
+<p>类似地，一个可形变 3D
+物体（如一个被压扁又弹回的橡胶球）在被相机拍摄时，几乎不可能用有限维群来精确描述”保物体身份”的变换族。</p>
+<p><strong>结论</strong>：现实中我们关心的变换远比精确的全局对称群<strong>大得多</strong>——全局精确不变/等变被<strong>局部的、近似的不变/等变</strong>所取代。</p>
+<p><strong>失败模式 2：“小形变”不构成群</strong></p>
+<p>直观上，一个微小的形变（<span class="math inline">\(\tau
+\approx\)</span> 恒等）不应改变 <span
+class="math inline">\(f(x)\)</span>
+的输出——“只差一点点”的输入应该给出”只差一点点”的输出。</p>
+<p>问题在于：“小形变”的集合<strong>不满足群的封闭性公理</strong>。两个
+<span class="math inline">\(\epsilon\)</span>-等距（与精确等距距离 <span
+class="math inline">\(\leq \epsilon\)</span>）的复合最多是 <span
+class="math inline">\(2\epsilon\)</span>-等距——“小”不能保证在复合下封闭。<strong>所以我们不能把”小形变”当作一个对称群来处理。</strong></p>
+<p>另一方面，用整个微分同胚群 <span
+class="math inline">\(\mathrm{Diff}(\Omega)\)</span>
+作为对称群也不合适——大的形变会实质性地改变输入的语义内容（把猫的图像拉伸成不可辨认的图案）。</p>
+<hr />
+<h4 id="信号形变稳定性">信号形变稳定性</h4>
+<p>出路：定义一个<strong>形变代价</strong> <span
+class="math inline">\(c(\tau)\)</span> 来量化一个变换 <span
+class="math inline">\(\tau\)</span> 与给定对称子群 <span
+class="math inline">\(\mathfrak{G}\)</span> 的距离。关键性质：</p>
+<p><span class="math display">\[c(\tau) = 0 \quad \text{当} \quad \tau
+\in \mathfrak{G}\]</span></p>
+<p>即代价精确为零当且仅当 <span class="math inline">\(\tau\)</span>
+是群内的一个精确对称变换。这允许我们在 <span
+class="math inline">\(\mathfrak{G}\)</span> 附近”软化”约束：</p>
+<blockquote>
+<p>函数 <span class="math inline">\(f\)</span>
+是<strong>几何稳定的（geometrically stable）</strong>，如果存在常数
+<span class="math inline">\(C\)</span>（与信号 <span
+class="math inline">\(x\)</span> 无关），使得对所有 <span
+class="math inline">\(x \in \mathcal{X}(\Omega)\)</span>： <span
+class="math display">\[\| f(\rho(\tau) x) - f(x)\| \leq C \cdot c(\tau)
+\cdot \|x\|\]</span></p>
+</blockquote>
+<ul>
+<li><strong>左端</strong> <span class="math inline">\(\| f(\rho(\tau) x)
+- f(x)\|\)</span>：将输入信号 <span class="math inline">\(x\)</span> 按
+<span class="math inline">\(\tau\)</span> 形变后喂给 <span
+class="math inline">\(f\)</span>，与直接喂原信号给 <span
+class="math inline">\(f\)</span>，两者输出的差异</li>
+<li><strong>右端</strong> <span class="math inline">\(C \cdot c(\tau)
+\cdot \|x\|\)</span>：这个差异被形变代价 <span
+class="math inline">\(c(\tau)\)</span> 乘上信号的”大小” <span
+class="math inline">\(\|x\|\)</span> 所<strong>线性控制</strong></li>
+<li><span class="math inline">\(\tau\)</span> 越接近 <span
+class="math inline">\(\mathfrak{G}\)</span>（<span
+class="math inline">\(c(\tau)\)</span> 越小）→ 输出差异越小</li>
+<li><span class="math inline">\(\tau \in \mathfrak{G}\)</span> → <span
+class="math inline">\(c(\tau) = 0\)</span> → 输出差异 = 0 →
+回到<strong>精确不变性</strong></li>
+</ul>
+<p>这条不等式把”<span
+class="math inline">\(\mathfrak{G}\)</span>-不变”从二值条件（是/否）推广为<strong>连续条件</strong>（偏离量由
+<span class="math inline">\(c(\tau)\)</span> 定量控制）。</p>
+<h4 id="一个具体例子图像的-dirichlet-能量">一个具体例子：图像的
+Dirichlet 能量</h4>
+<p>对于定义在连续欧几里得平面上的图像，一个广泛使用的形变代价是<strong>Dirichlet
+能量</strong>：</p>
+<p><span class="math display">\[c^2(\tau) = \int_\Omega \|\nabla
+\tau(u)\|^2 \, du\]</span></p>
+<p>直观理解： - <span class="math inline">\(\nabla \tau(u)\)</span>
+是形变场在点 <span class="math inline">\(u\)</span> 处的”空间变化率” -
+若 <span class="math inline">\(\tau\)</span>
+是<strong>精确平移</strong>（常数位移向量场），则 <span
+class="math inline">\(\nabla \tau \equiv 0\)</span>，<span
+class="math inline">\(c(\tau) = 0\)</span> - 若 <span
+class="math inline">\(\tau\)</span> 有局部拉伸或剪切（<span
+class="math inline">\(\nabla \tau \neq 0\)</span>），Dirichlet
+能量积累”弹性偏离”</p>
+<p>Dirichlet 能量本质上衡量的是：<span
+class="math inline">\(\tau\)</span>
+与<strong>平移群</strong>的偏离有多远。它实际上是一个范数——这使 <span
+class="math inline">\(c\)</span>
+享有范数带来的所有理论便利（如三角不等式、标量乘法）。</p>
+<h4 id="核心图景automega-中的灰环">核心图景：Aut(<span
+class="math inline">\(\Omega\)</span>) 中的”灰环”</h4>
+<p>原文 Figure 6 提供了关键的几何直觉：所有双射构成整个自同构群 <span
+class="math inline">\(\mathrm{Aut}(\Omega)\)</span>。对称群 <span
+class="math inline">\(\mathfrak{G}\)</span>（如平移群）是其中的一个<strong>圆</strong>（子群）。几何稳定性将
+<span
+class="math inline">\(\mathfrak{G}\)</span>-不变/等变的概念<strong>延拓到
+<span class="math inline">\(\mathfrak{G}\)</span>
+周围的”灰环”</strong>——即 <span class="math inline">\(c(\tau)\)</span>
+很小的那些 <span class="math inline">\(\tau\)</span>，它们虽然不属于
+<span
+class="math inline">\(\mathfrak{G}\)</span>，但”几乎”是群元素。</p>
+<img src="/2026/07/03/Geometric-Deep-Learning-Note1/image-20260703203550230.png" class="" title="形变稳定性">
+<hr />
+<h4 id="域形变稳定性">域形变稳定性</h4>
+<p>此前讨论假设域 <span class="math inline">\(\Omega\)</span>
+固定，仅信号受到形变。但很多应用中<strong>域本身也在变化</strong>。</p>
+<p>可以这样看：</p>
+<ul>
+<li><span
+class="math inline">\(\Omega\)</span>（域）是<strong>画布</strong>——它规定了”哪里可以画”。网格是一张坐标纸，图是节点连线的拓扑，流形是一个弯曲的面</li>
+<li><span
+class="math inline">\(x\)</span>（信号）是<strong>画布上的颜料</strong>——在每个可画的位置上填了具体值。图像是
+RGB 值，节点特征是向量</li>
+<li><strong>信号形变</strong>：画布不变，<strong>颜料被抹了一下</strong>。同一张
+<span class="math inline">\(256 \times 256\)</span>
+的画布，猫图被拉伸——像素的 RGB
+值被重新分配到附近的坐标上。域相同，信号被扭曲</li>
+<li><strong>域形变</strong>：<strong>画布本身变了</strong>，颜料随之重新附着。比如社交网络今天的关注图（<span
+class="math inline">\(\Omega_1\)</span>）和明天的关注图（<span
+class="math inline">\(\Omega_2\)</span>）画布结构不同——有人取关，边消失了。信号（用户发帖内容）被搬到了新的画布上</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>应用</th>
+<th>域形变例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>社交网络</td>
+<td>不同时间点的关注图——边被增加或删除</td>
+</tr>
+<tr>
+<td>3D 形状分析</td>
+<td>同一个物体被非刚体形变（弯曲、拉伸）</td>
+</tr>
+<tr>
+<td>分子建模</td>
+<td>不同构象的分子对应略有不同的图结构</td>
+</tr>
+</tbody>
+</table>
+<p>看一个具体示例：两个图 <span class="math inline">\(\Omega\)</span> 和
+<span class="math inline">\(\tilde{\Omega}\)</span></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Ω:    1 —— 2         Ω̃:    a —— b</span><br><span class="line">      |               </span><br><span class="line">      3                    c</span><br></pre></td></tr></table></figure>
+<p>右边的图少了一条边（<span class="math inline">\(b\)</span> 没有连到
+<span class="math inline">\(c\)</span>），它们不是同构的。</p>
+<p>现在有一组节点特征（信号）定义在两个图上：</p>
+<ul>
+<li><span class="math inline">\(x\)</span>：<span
+class="math inline">\(\Omega\)</span> 上定义，<span
+class="math inline">\(x(1) = 0.8, x(2) = 0.3, x(3) = 0.5\)</span></li>
+<li><span class="math inline">\(\tilde{x}\)</span>：<span
+class="math inline">\(\tilde{\Omega}\)</span>
+上同样的值通过某个”对应关系”搬运过去</li>
+</ul>
+<p>希望分类器 <span class="math inline">\(f\)</span>
+对两个图给出<strong>相似</strong>的答案（比如这两个图都代表”大约是三人的小群组”），尽管它们不完全同构。可以定义一个域间距离
+<span class="math display">\[d_\mathcal{D}(\Omega, \tilde{\Omega}) =
+\inf_{\eta \in \mathfrak{G}} |d - \tilde{d} \circ (\eta \times
+\eta)|\]</span></p>
+<ul>
+<li><strong><span class="math inline">\(d\)</span></strong>：<span
+class="math inline">\(\Omega\)</span> 上的距离/邻接结构。对于图，<span
+class="math inline">\(d(u,v)\)</span> 可以是”<span
+class="math inline">\(u\)</span> 和 <span
+class="math inline">\(v\)</span> 之间是否有边”（0/1 的邻接矩阵）</li>
+<li><strong><span
+class="math inline">\(\tilde{d}\)</span></strong>：<span
+class="math inline">\(\tilde{\Omega}\)</span> 上的距离/邻接结构</li>
+<li><strong><span class="math inline">\(\eta: \Omega \to
+\tilde{\Omega}\)</span></strong>：一个对齐映射——“把 <span
+class="math inline">\(\Omega\)</span> 的节点与 <span
+class="math inline">\(\tilde{\Omega}\)</span> 的节点配对”。比如 <span
+class="math inline">\(\eta(1)=a, \eta(2)=b, \eta(3)=c\)</span></li>
+<li><strong><span class="math inline">\(\tilde{d} \circ (\eta \times
+\eta)\)</span></strong>：先对齐，再算 <span
+class="math inline">\(\tilde{\Omega}\)</span> 的距离。即 <span
+class="math inline">\(\tilde{d}(\eta(u), \eta(v))\)</span>——“对齐后的
+<span class="math inline">\(\tilde{\Omega}\)</span> 结构”</li>
+<li><strong><span class="math inline">\(|d - \tilde{d} \circ (\eta
+\times \eta)|\)</span></strong>：在对齐 <span
+class="math inline">\(\eta\)</span>
+下，两个域的结构<strong>差异</strong>有多大</li>
+<li><strong><span class="math inline">\(\inf_{\eta \in
+\mathfrak{G}}\)</span></strong>：遍历<strong>所有可能的对齐方式</strong>，取差异最小的那个。<span
+class="math inline">\(\mathfrak{G}\)</span> 是同构群——例如图的排列群
+<span class="math inline">\(\Sigma_n\)</span>，或流形的等距群。<span
+class="math inline">\(\inf\)</span>
+拿到的是”在最佳对齐下，两个域还剩多少结构差异”。如果最佳对齐时差异为零 →
+两域同构（图同构/流形等距）。</li>
+</ul>
+<p><strong>域的度量</strong>：记 <span
+class="math inline">\(\mathcal{D}\)</span>
+为所有可能域的空间（如所有图的空间，或所有黎曼流形的空间）。为 <span
+class="math inline">\(\Omega, \tilde{\Omega} \in \mathcal{D}\)</span>
+定义域间距离 <span class="math inline">\(d_\mathcal{D}(\Omega,
+\tilde{\Omega})\)</span>，使得：</p>
+<ul>
+<li><strong>图</strong>：<span class="math inline">\(d_\mathcal{D} =
+0\)</span> 当两图<strong>同构</strong> → 图编辑距离（graph edit
+distance）——通过一系列编辑操作（删边、加边、增删节点）使两个图同构的最小代价</li>
+<li><strong>流形</strong>：<span class="math inline">\(d_\mathcal{D} =
+0\)</span> 当两流形<strong>等距</strong> → Gromov-Hausdorff
+距离——两个度量空间之间最小可能的度量扭曲</li>
+</ul>
+<p><strong>通用构造方式</strong>：通过结构对齐映射 <span
+class="math inline">\(\eta: \Omega \to
+\tilde{\Omega}\)</span>（同构，如双射或等距）对齐两个域，比较它们的距离/邻接结构：</p>
+<p><span class="math display">\[d_\mathcal{D}(\Omega, \tilde{\Omega}) =
+\inf_{\eta \in \mathfrak{G}} \|d - \tilde{d} \circ (\eta \times
+\eta)\|\]</span></p>
+<p>其中 <span class="math inline">\(\mathfrak{G}\)</span>
+是同构群（如排列群或等距群），范数定义在乘积空间 <span
+class="math inline">\(\Omega \times \Omega\)</span>
+上。这个公式的思想是：通过<strong>所有可能的对齐方式</strong>（<span
+class="math inline">\(\eta \in
+\mathfrak{G}\)</span>），找到使两个域的<strong>内部结构</strong>（距离矩阵或邻接矩阵）差异最小的那个对齐——差异的最小值就是域间距离。</p>
+<p><strong>域形变稳定性条件</strong>：给定原域 <span
+class="math inline">\(\Omega\)</span> 上的信号 <span
+class="math inline">\(x \in \mathcal{X}(\Omega)\)</span>，先通过 <span
+class="math inline">\(\eta^{-1}\)</span> 将其”搬运”到形变后的域 <span
+class="math inline">\(\tilde{\Omega}\)</span> 上得到 <span
+class="math inline">\(\tilde{x} = x \circ \eta^{-1} \in
+\mathcal{X}(\tilde{\Omega})\)</span>。函数 <span
+class="math inline">\(f: \mathcal{X}(\mathcal{D}) \to
+\mathcal{Y}\)</span> 对域形变稳定，如果：</p>
+<p><span class="math display">\[\| f(x, \Omega) - f(\tilde{x},
+\tilde{\Omega}) \| \leq C \cdot \|x\| \cdot d_\mathcal{D}(\Omega,
+\tilde{\Omega})\]</span> 对所有的 <span class="math inline">\(\Omega,
+\tilde{\Omega} \in \mathcal{D}\)</span> 和 <span class="math inline">\(x
+\in \mathcal{X}(\Omega)\)</span> 成立。</p>
+<p>这一定义将在后续的流形和网格章节（第 3
+文档）中扮演关键角色——等距形变在 3D 形状分析中至关重要。</p>
+<p>两个域在结构上很接近（<span
+class="math inline">\(d_\mathcal{D}\)</span>
+很小），那么定义在这两个域上的相似信号，经过 <span
+class="math inline">\(f\)</span> 处理后，输出也应该很接近。<strong><span
+class="math inline">\(f\)</span>
+的输出随域的变化是”可控的”——不会因为域被轻微编辑而崩溃。</strong></p>
+<p>与信号形变稳定性的类比（两者的精神一致：<strong>把”精确不变”软化为”误差随偏离量线性增长”</strong>）：</p>
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 24%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>变化的是什么</th>
+<th>控制因素</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>信号形变稳定性</td>
+<td>信号 <span class="math inline">\(x\)</span> 被 <span
+class="math inline">\(\tau\)</span> 扭曲</td>
+<td><span class="math inline">\(c(\tau)\)</span> — <span
+class="math inline">\(\tau\)</span> 离群有多远</td>
+</tr>
+<tr>
+<td>域形变稳定性</td>
+<td>域 <span class="math inline">\(\Omega\)</span> 本身被编辑</td>
+<td><span class="math inline">\(d_\mathcal{D}(\Omega,
+\tilde{\Omega})\)</span> — 两个域有多”近”</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>可以证明：域形变稳定性是信号形变稳定性的自然推广——后者可以重新表述为体积形式（volume
+form）的形变（Gama 2019）。</p>
+</blockquote>
+<p><strong>二次指派问题（QAP）</strong>
+是图对齐的具体实现：对于同样大小为 <span
+class="math inline">\(n\)</span> 的两个图，求 <span
+class="math inline">\(\min_{\mathbf{P} \in \Sigma_n}
+\mathrm{trace}(\mathbf{A} \mathbf{P} \tilde{\mathbf{A}}
+\mathbf{P}^\top)\)</span>，其中 <span class="math inline">\(\mathbf{A},
+\tilde{\mathbf{A}}\)</span> 为邻接矩阵，<span
+class="math inline">\(\Sigma_n\)</span> 为排列矩阵群。</p>
+<p>两个图 <span class="math inline">\(G\)</span> 和 <span
+class="math inline">\(\tilde{G}\)</span>，都有 <span
+class="math inline">\(n\)</span> 个节点。邻接矩阵 <span
+class="math inline">\(\mathbf{A}\)</span> 和 <span
+class="math inline">\(\tilde{\mathbf{A}}\)</span>
+描述了各自的边结构。</p>
+<p><strong>QAP 问题：如何把 <span class="math inline">\(G\)</span>
+的节点与 <span class="math inline">\(\tilde{G}\)</span>
+的节点配对（排列），使两个邻接矩阵”对得最齐”？</strong></p>
+<p><span class="math display">\[\min_{\mathbf{P} \in \Sigma_n}
+\mathrm{trace}(\mathbf{A} \mathbf{P} \tilde{\mathbf{A}}
+\mathbf{P}^\top)\]</span></p>
+<ul>
+<li><span class="math inline">\(\mathbf{P}\)</span> 是一个 <span
+class="math inline">\(n \times n\)</span>
+<strong>排列矩阵</strong>（每行每列恰有一个 1，其余为 0）。<span
+class="math inline">\(\mathbf{P}[i, j] = 1\)</span> 表示”把 <span
+class="math inline">\(G\)</span> 的节点 <span
+class="math inline">\(i\)</span> 配给 <span
+class="math inline">\(\tilde{G}\)</span> 的节点 <span
+class="math inline">\(j\)</span>”</li>
+<li><span class="math inline">\(\mathbf{P} \tilde{\mathbf{A}}
+\mathbf{P}^\top\)</span> = 把 <span
+class="math inline">\(\tilde{G}\)</span> 的邻接矩阵<strong>按排列 <span
+class="math inline">\(\mathbf{P}\)</span>
+重新编号</strong>（翻转行和列），使节点顺序与 <span
+class="math inline">\(G\)</span> 对齐</li>
+<li><span class="math inline">\(\mathbf{A} (\mathbf{P}
+\tilde{\mathbf{A}} \mathbf{P}^\top)\)</span> =
+对齐后的两个邻接矩阵逐元相乘</li>
+<li><span class="math inline">\(\mathrm{trace}\)</span> =
+取矩阵对角线之和 = 所有对应位置的乘积之和</li>
+</ul>
+<p>对于每一对 <span class="math inline">\((i, j)\)</span> 节点：<span
+class="math inline">\(\mathbf{A}[i, j] \times\)</span>（对齐后 <span
+class="math inline">\(\tilde{\mathbf{A}}\)</span> 在 <span
+class="math inline">\((i, j)\)</span> 的值）</p>
+<ul>
+<li>若两个图中 <span class="math inline">\((i, j)\)</span>
+<strong>都有边</strong>：<span class="math inline">\(1 \times 1 =
+1\)</span> → 贡献到一致计数</li>
+<li>若<strong>一个有边一个无边</strong>：<span class="math inline">\(1
+\times 0 = 0\)</span> → 不贡献</li>
+<li>若<strong>都无边</strong>：<span class="math inline">\(0 \times 0 =
+0\)</span> → 不贡献</li>
+</ul>
+<p>所以 <span class="math inline">\(\mathrm{trace}\)</span> =
+<strong>对齐后两个图共享边的总数</strong>。</p>
+<p><strong>一个具体例子</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">G:  1---2     G̃:  a---b</span><br><span class="line">    |              \  |</span><br><span class="line">    3   4           c-d</span><br></pre></td></tr></table></figure>
+<p><span class="math inline">\(\mathbf{A}\)</span>（<span
+class="math inline">\(G\)</span>）：<span class="math inline">\((1,2),
+(1,3), (2,1), (3,1)\)</span> 位置为 1，其余为 0</p>
+<p><span class="math inline">\(\tilde{\mathbf{A}}\)</span>（<span
+class="math inline">\(\tilde{G}\)</span>）：<span
+class="math inline">\((a,b), (a,c), (b,a), (b,d), (c,a), (c,d), (d,b),
+(d,c)\)</span> 位置为 1</p>
+<p>排列 <span class="math inline">\(\mathbf{P}\)</span>：<span
+class="math inline">\(\mathbf{P}\)</span>：<span class="math inline">\(1
+\to a, 2 \to b, 3 \to c, 4 \to d\)</span></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">（按1,2,3,4这种方式重排列G̃后）</span><br><span class="line">  1 2 3 4</span><br><span class="line">1 0 1 1 0    ← a-b=1, a-c=1</span><br><span class="line">2 1 0 0 1    ← b-a=1, b-d=1</span><br><span class="line">3 1 0 0 1    ← c-a=1, c-d=1</span><br><span class="line">4 0 1 1 0    ← d-b=1, d-c=1</span><br></pre></td></tr></table></figure>
+<p>QAP 的目标就是转动 <span class="math inline">\(\mathbf{P}\)</span>
+的所有排列，找到让”两边都有边的节点对”最多的那个排列。</p>
+<p>从 <span class="math inline">\(G\)</span> 变成 <span
+class="math inline">\(\tilde{G}\)</span>
+的最少编辑操作（等价于图编辑距离，使两图同构所需的最少编辑操作数，包括增删边、节点）：<strong>加两条边</strong>（<span
+class="math inline">\(2-4\)</span> 和 <span
+class="math inline">\(3-4\)</span>）= 编辑距离 = 2。排列 <span
+class="math inline">\(\mathbf{P}\)</span> 将节点 4 映射到 <span
+class="math inline">\(d\)</span>，但 4 是孤立的——所以 <span
+class="math inline">\(b-d\)</span> 和 <span
+class="math inline">\(c-d\)</span> 这两个连接在 <span
+class="math inline">\(G\)</span> 中完全缺失。</p>
+<p><span class="math inline">\(d_\mathcal{D}(G, \tilde{G}) = 2\)</span>
+— 需要 2
+个编辑操作才能使二者同构。这个非零距离正是域形变稳定性公式中控制 <span
+class="math inline">\(|f(x,\Omega) -
+f(\tilde{x},\tilde{\Omega})|\)</span> 上界的那个因子。</p>
+<p><span class="math inline">\(\Sigma_n\)</span> 有 <span
+class="math inline">\(n!\)</span>
+种可能的排列。想要找到最优的那个，必须逐一比较——没有捷径。（QAP 是
+NP-hard，显式求解 QAP 完全不可能）</p>
+<p><strong>GNN 的替代策略：不求解
+QAP，而是让网络”感觉不到”排列</strong></p>
+<p>回到 GDL 的基本思路。前文讨论过，对于图数据，对称群是排列群 <span
+class="math inline">\(\Sigma_n\)</span>。排列不变意味着：</p>
+<p><span class="math display">\[f(\rho(\mathbf{P})x) = f(x)\]</span></p>
+<p>改变节点的编号顺序，网络的输出不变。（<span
+class="math inline">\(f\)</span> 不在乎节点的标签是 <span
+class="math inline">\((0,1,2)\)</span> 还是 <span
+class="math inline">\((2,0,1)\)</span>——它只看到同样的结构、同样的特征值集合）</p>
+<p>这等价于对于任意两个同构图 <span class="math inline">\(G\)</span> 和
+<span
+class="math inline">\(\tilde{G}\)</span>（它们仅节点编号不同，由某个
+<span class="math inline">\(\mathbf{P}\)</span> 关联），<span
+class="math inline">\(f\)</span>
+自动给出<strong>完全相同的输出</strong>。你不需要去”找”这个 <span
+class="math inline">\(\mathbf{P}\)</span>——网络的架构已经保证了<strong>任何</strong>
+<span class="math inline">\(\mathbf{P}\)</span> 都不会影响结果。</p>
+<p>QAP
+方式：给你两张照片，你逐像素比对，找出它们是不是同一个人。计算量随像素数指数爆炸。</p>
+<p>GNN
+方式：你训练了一个人脸识别网络，不管照片怎么裁剪、缩放、平移（这些 =
+排列的类比），网络输出同一个身份标签。网络<strong>从来不去显式地对齐任何两张照片</strong>——架构本身已经内化了”平移/缩放等不影响身份”这一先验。</p>
+<p>QAP 给不出确定性答案——两个图不是完全同构，不存在完美的排列对齐。但
+GNN 通过消息传递 +
+聚合，逐层构建<strong>局部结构的层次化表示</strong>，使得：</p>
+<ul>
+<li>结构相似的两个图（仅差几条边）→ 网络内部表示相近 → 输出相近</li>
+<li>结构迥异的两个图 → 表示差异大 → 输出差异大</li>
+</ul>
+<p>这正是<strong>域形变稳定性</strong>在起作用——GNN 隐式地实现了”<span
+class="math inline">\(d_\mathcal{D}\)</span>
+小则输出差异小”的保证，而不需要显式地计算 <span
+class="math inline">\(d_\mathcal{D}\)</span>。</p>
+<hr />
+<h4 id="从形变稳定性到尺度分离">从形变稳定性到尺度分离</h4>
+<p>形变稳定性大幅强化了全局对称性先验，但它本身仍不足够克服维数灾难。非正式地讲，随着域的大小增长，满足形变稳定性条件的函数仍然”太多”——需要额外的结构来进一步削减函数空间。</p>
+<p>下一节引入的关键工具是<strong>尺度分离</strong>——利用物理任务的多尺度结构来组织这些稳定表示。</p>
+<h3 id="尺度分离scale-separation">3.5 尺度分离（Scale Separation）</h3>
+<h4 id="形变稳定性还不够">形变稳定性还不够</h4>
+<p>形变稳定性大幅强化了全局对称性先验，但它单独不足以克服维数灾难。非正式地讲，随着域
+<span class="math inline">\(\Omega\)</span>
+的大小增长，仍存在”<strong>太多</strong>”的函数满足形变稳定性条件——假设空间仍然过大。突破这一瓶颈的关键洞察是：<strong>利用物理任务固有的多尺度结构</strong>。</p>
+<hr />
+<h4 id="fourier-变换频率与全局不变量">Fourier
+变换：频率与全局不变量</h4>
+<p>在讨论多尺度表示之前，需要引入调和分析的基石——<strong>Fourier
+变换</strong>。它是按<strong>频率</strong>而非尺度组织信号的。</p>
+<p><strong>经典 1D Fourier 变换</strong>：</p>
+<p><span class="math display">\[\hat{x}(\xi) = \int_{-\infty}^{\infty}
+x(u) e^{-i\xi u} \, du\]</span></p>
+<p>将函数 <span class="math inline">\(x(u) \in
+L^2(\Omega)\)</span>（<span class="math inline">\(\Omega =
+\mathbb{R}\)</span>）表示为正交振荡基函数 <span
+class="math inline">\(\varphi_\xi(u) = e^{i\xi u}\)</span>
+的线性组合，按振荡速率 <strong><span
+class="math inline">\(\xi\)</span>（频率）</strong>
+索引。这种频率组织揭示了信号的重要信息——光滑性、局部化程度等。</p>
+<p>Fourier
+基有深刻的几何根源——可以解释为域的<strong>自然振动模式</strong>（本征模态），与域的
+Laplacian 算子紧密关联。这一几何视角使得 Fourier
+分析可以推广到非欧域：图、群、流形——通过该域上内蕴定义的微分算子（Laplacian
+的特征分解）。</p>
+<blockquote>
+<p>本节所述的 Fourier
+变换不限于一维欧氏域——后续将在任意几何域上再次出现（第 3 文档）。</p>
+</blockquote>
+<p><strong>卷积定理</strong>：Fourier
+变换在信号处理中的核心地位源自它给卷积提供了一种对偶形式：</p>
+<p><span class="math display">\[(x \star \theta)(u) =
+\int_{-\infty}^{\infty} x(v)\theta(u - v) \, dv\]</span></p>
+<p>卷积算子在 Fourier 基下被<strong>对角化</strong>：</p>
+<p><span class="math display">\[\widehat{(x \star \theta)}(\xi) =
+\hat{x}(\xi) \cdot \hat{\theta}(\xi)\]</span></p>
+<p>即在 Fourier 域中，卷积变为逐频率的点乘。这一事实是 CNN
+的数学基础——卷积在频域中有简明的表征。</p>
+<blockquote>
+<p>实践中机器学习常混用卷积和<strong>互相关（cross-correlation）</strong>
+<span class="math inline">\((x \star \theta)(u) = \int
+x(v)\theta(u+v)dv\)</span>；由于滤波器通常是可学习的，两者仅差一个符号，区分不必严格。</p>
+</blockquote>
+<p><strong>Fourier 基的全局性</strong>：Fourier 基函数 <span
+class="math inline">\(\varphi_\xi(u) = e^{i\xi u}\)</span>
+在整个域上有<strong>全局支撑</strong>——每个基函数在<strong>所有</strong>
+<span class="math inline">\(u\)</span>
+上非零。结果：信号中一个局部的不连续点在 Fourier
+域中产生<strong>跨越所有频率</strong>的能量。</p>
+<hr />
+<h4 id="fourier-的形变不稳定性">Fourier 的形变不稳定性</h4>
+<p>Fourier 表示对精确平移极为友好，但这对近似形变不是事实。</p>
+<p><strong>精确平移情形</strong>：平移算子 <span
+class="math inline">\(S_v\)</span>（<span class="math inline">\(S_v x(u)
+= x(u - v)\)</span>）在 Fourier 域中仅改变相位：</p>
+<p><span class="math display">\[(\widehat{S_v x})(\xi) = e^{-i\xi v}
+\hat{x}(\xi)\]</span></p>
+<p>因此 <strong>Fourier 模</strong> <span class="math inline">\(f(x) =
+|\hat{x}|\)</span> 是精确的平移不变量（取模去掉了相位）： <span
+class="math display">\[f(S_v x) = |e^{-i\xi v}\hat{x}(\xi)| =
+|\hat{x}(\xi)| = f(x)\]</span></p>
+<p><strong>近似平移情形</strong>：考虑 <span
+class="math inline">\(\tau(u) = u - \tilde{\tau}(u)\)</span> （<span
+class="math inline">\(\tilde{\tau}(u)\)</span>
+<strong>不是常数</strong>，它随位置 <span
+class="math inline">\(u\)</span> 变化），其中 <span
+class="math inline">\(\|\nabla\tilde{\tau}\|_\infty \leq
+\epsilon\)</span>——这是”几乎是一个平移”的形变。此时：</p>
+<p><span class="math display">\[\frac{\|f(\rho(\tau) x) - f(x)\|}{\|x\|}
+= \mathcal{O}(1)\]</span></p>
+<p>无论 <span class="math inline">\(\epsilon\)</span>
+多小！换言之，<strong>Fourier
+模对任意小的形变都是不稳定的</strong>——即使 <span
+class="math inline">\(\tau\)</span> 无限接近平移，Fourier
+模仍可能产生常数级的偏差。</p>
+<p>直观理解：高频 Fourier 分量对微小的几何扭曲极度敏感——局部形变 <span
+class="math inline">\(\tau\)</span>
+即使在小邻域内改变了空间结构，高频相位就会出现巨大偏移，导致 Fourier
+模的崩塌。这种不稳定性在一般域和非刚体变换中同样存在——第 3 文档将在 3D
+形状分析中再次遇到 Fourier 扩展版本的类似问题。</p>
+<hr />
+<h4 id="小波与多尺度表示">小波与多尺度表示</h4>
+<p>Fourier 频率表示 → 全局但不稳定。</p>
+<p>小波表示 → <strong>局部且稳定</strong>。</p>
+<p><strong>核心思路</strong>：将信号按<strong>尺度</strong>（而非频率）分解为在<strong>空间和频率上同时局部化</strong>的基本元素。</p>
+<p><strong>连续小波变换</strong>：由一个<strong>母小波</strong> <span
+class="math inline">\(\psi\)</span> 通过平移和伸缩生成小波原子：</p>
+<p><span class="math display">\[(W_\psi x)(u, \xi) = \xi^{-1/2}
+\int_{-\infty}^{\infty} \psi\!\left(\frac{v - u}{\xi}\right) x(v) \,
+dv\]</span></p>
+<ul>
+<li><span class="math inline">\(u\)</span> =
+小波原子的空间位置（平移参数）</li>
+<li><span class="math inline">\(\xi\)</span> =
+小波原子的尺度/伸缩（<span class="math inline">\(\xi\)</span> 大 =
+宽小波 = 粗尺度；<span class="math inline">\(\xi\)</span> 小 = 窄小波 =
+精细尺度）</li>
+<li>实际计算中通常做<strong>二进采样</strong>（dyadic sampling）：<span
+class="math inline">\(\xi = 2^{-j}\)</span>，<span
+class="math inline">\(u = 2^{-j} k\)</span>，其中 <span
+class="math inline">\(j\)</span> 称为<strong>尺度参数</strong></li>
+</ul>
+<p><strong>Fourier vs 小波</strong>：</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Fourier</th>
+<th>小波</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>基函数支撑</td>
+<td>全局（整个域）</td>
+<td>局部（有限窗）</td>
+</tr>
+<tr>
+<td>组织方式</td>
+<td>按频率 <span class="math inline">\(\xi\)</span></td>
+<td>按尺度 <span class="math inline">\(j\)</span> + 位置 <span
+class="math inline">\(u\)</span></td>
+</tr>
+<tr>
+<td>对局部不连续点的响应</td>
+<td>能量扩散到所有频率</td>
+<td>能量集中在不连续点邻域</td>
+</tr>
+<tr>
+<td>表示</td>
+<td>正交基</td>
+<td>过完备（冗余）表示</td>
+</tr>
+<tr>
+<td>形变稳定性</td>
+<td><span class="math inline">\(\mathcal{O}(1)\)</span> — 不稳定</td>
+<td><span class="math inline">\(\mathcal{O}(\epsilon)\)</span> —
+近似等变</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>小波表示的冗余性（过完备）不是缺陷而是特征——它提供了数值稳定性，使信号在形变下保持可追踪。</p>
+</blockquote>
+<hr />
+<h4 id="小波的形变稳定性">小波的形变稳定性</h4>
+<p>回到上节的近似平移 <span class="math inline">\(\tau(u) = u -
+\tilde{\tau}(u)\)</span>，<span
+class="math inline">\(\|\nabla\tilde{\tau}\|_\infty \leq
+\epsilon\)</span>。对于小波分解，可以证明（Mallat 2012）：</p>
+<p><span class="math display">\[\frac{\|\rho(\tau)(W_\psi x) -
+W_\psi(\rho(\tau) x)\|}{\|x\|} = \mathcal{O}(\epsilon)\]</span></p>
+<p>即小波变换对形变是<strong>近似等变的</strong>：形变后的小波系数约等于小波系数的形变——误差与
+<span class="math inline">\(\epsilon\)</span>
+成比例，<strong>可控</strong>。</p>
+<p>这揭示了从 Fourier 到小波的范式转换：</p>
+<p><span class="math display">\[\text{Fourier: } \mathcal{O}(1) \text{
+不稳定} \quad\to\quad \text{小波: } \mathcal{O}(\epsilon) \text{
+近似等变}\]</span></p>
+<p><strong>关键洞察</strong>：用局部化滤波器按尺度（而非全局频率）分解信号信息
+→
+将一个全局不稳定表示转化为一系列<strong>局部稳定的特征族</strong>。</p>
+<p>但重要的一点是：这些不同尺度的测量<strong>不是不变的</strong>——它们需要逐步向低频/粗尺度聚合。这自然暗示了神经网络需要的<strong>深度组合结构</strong>——这正是
+GDL 蓝图的核心。</p>
+<hr />
+<h4
+id="尺度分离先验从物理到机器学习">尺度分离先验：从物理到机器学习</h4>
+<p>基于小波稳定性，可以将域 <span class="math inline">\(\Omega\)</span>
+多尺度粗粒化（抽象出信息）为一个层次结构：</p>
+<p><span class="math display">\[\Omega = \Omega_1 \supseteq \Omega_2
+\supseteq \cdots \supseteq \Omega_J\]</span></p>
+<p>粗粒化将邻近的点 <span class="math inline">\(u, u&#39; \in
+\Omega\)</span>
+合并到一起——这一操作只需域上定义了合适的<strong>度量</strong>（距离概念）。网格、图、流形上都允许这样的粗粒化。</p>
+<p>以图像分类为例，一张 <span class="math inline">\(256 \times
+256\)</span> 的图像是否需要我们在每个像素层面逐点分析？不需要。</p>
+<p>一个 CNN 做什么：</p>
+<ul>
+<li><strong>底层</strong>（精细尺度）：检测边缘、纹理斑点——局部 <span
+class="math inline">\(3 \times 3\)</span> 感受野</li>
+<li><strong>中层</strong>：将这些基本纹理组合成”眼睛”、“轮子”——感受野扩大到几十像素</li>
+<li><strong>高层</strong>：“眼睛+鼻子+嘴 = 脸”——感受野覆盖整张图像</li>
+</ul>
+<p>这个从局部到全局的过程取决于<strong>尺度层次</strong>——通过逐层<strong>粗粒化</strong>（池化）将域逐步缩小：</p>
+<p><span class="math display">\[256 \times 256 \to 128 \times 128 \to 64
+\times 64 \to \cdots\]</span></p>
+<p>在网格上粗粒化：将 <span class="math inline">\(2 \times 2\)</span>
+的方块合并为一个粗像素（平均池化或最大池化）。在图上粗粒化：将相邻节点合并为一个”超级节点”。</p>
+<p>记 <span class="math inline">\(\mathcal{X}_j(\Omega_j, \mathcal{C}_j)
+= \{x_j: \Omega_j \to \mathcal{C}_j\}\)</span>
+为定义在粗粒化域上的信号。非正式地说，函数 <span
+class="math inline">\(f: \mathcal{X}(\Omega) \to \mathcal{Y}\)</span>
+在尺度 <span class="math inline">\(j\)</span>
+上<strong>局部稳定</strong>，如果存在分解：</p>
+<p><span class="math display">\[f \approx f_j \circ P_j\]</span></p>
+<ul>
+<li><span
+class="math inline">\(f\)</span>：目标函数（如”这张图里有猫吗”）</li>
+<li><span class="math inline">\(P_j\)</span>：粗粒化算子，把精细域 <span
+class="math inline">\(\Omega\)</span> 上的信号压缩到粗域 <span
+class="math inline">\(\Omega_j\)</span> 上</li>
+<li><span
+class="math inline">\(f_j\)</span>：定义在粗域上的分类器——它接收的信号维度远低于原信号</li>
+<li><span class="math inline">\(f \approx f_j \circ
+P_j\)</span>：<strong>先局部压缩再全局分类的结果 ≈
+直接在精细域上分类的结果</strong></li>
+</ul>
+<p><span class="math inline">\(P_j: \mathcal{X}(\Omega) \to
+\mathcal{X}_j(\Omega_j)\)</span>
+是非线性<strong>粗粒化</strong>算子，<span class="math inline">\(f_j:
+\mathcal{X}_j(\Omega_j) \to \mathcal{Y}\)</span> 定义在粗尺度上。</p>
+<p><strong>含义</strong>：目标函数 <span
+class="math inline">\(f\)</span>
+可能依赖整个域上特征间的复杂长程交互。但在局部稳定函数中，这些交互可以被<strong>跨尺度分离</strong>——先在精细尺度上处理局部交互，再逐步向粗尺度传播。粗尺度上的
+<span class="math inline">\(f_j\)</span>
+处理的是已经过局部聚合的信息——空间范围更大，但信息量更紧凑。</p>
+<p><strong>物理/数学中的先例</strong>：</p>
+<table>
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 68%" />
+</colgroup>
+<thead>
+<tr>
+<th>领域</th>
+<th>尺度分离的体现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>统计物理</td>
+<td><strong>重整化群（Renormalisation Group）</strong> —
+从微观自由度出发逐层粗粒化得到宏观描述</td>
+</tr>
+<tr>
+<td>数值分析</td>
+<td><strong>快速多极子方法（FMM）</strong> —
+将距离相近的源聚合成单个源以加速 <span class="math inline">\(n\)</span>
+体计算</td>
+</tr>
+<tr>
+<td>机器学习</td>
+<td><strong>局部池化（Local Pooling）</strong> — CNN 中的 max/average
+pooling；GNN 中的图粗粒化</td>
+</tr>
+</tbody>
+</table>
+<p>这三种实例分享了同一个数学直觉：<strong>先局部聚合，再全局传播</strong>。尺度分离先验精确地刻画了
+CNN 和 GNN
+效率的数学本质，也是未来工作将从计算调和分析统一发展应用于各个几何域的理论工具。</p>
+<hr />
+<h4 id="从三个先验到蓝图">从三个先验到蓝图</h4>
+<p>至此，三类几何先验已全部展开：</p>
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 33%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr>
+<th>先验</th>
+<th>核心思想</th>
+<th>神经网络实现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>对称性</strong>（3.2–3.3）</td>
+<td>群作用 → 不变/等变函数</td>
+<td>等变层 + 全局池化</td>
+</tr>
+<tr>
+<td><strong>形变稳定性</strong>（3.4）</td>
+<td>精确不变 → 近似不变的软化</td>
+<td>稳定性不等式自动满足（设计得当的架构）</td>
+</tr>
+<tr>
+<td><strong>尺度分离</strong>（3.5）</td>
+<td>多尺度粗粒化 → 先局部后全局</td>
+<td>局部池化 + 深层组合</td>
+</tr>
+</tbody>
+</table>
+<p>三者联合 → <strong>几何深度学习蓝图</strong>（3.6 节）。</p>
+<h3 id="gdl-蓝图the-blueprint">3.6 GDL 蓝图（The Blueprint）</h3>
+<h4 id="四个构建块building-blocks">四个构建块（Building Blocks）</h4>
+<ol type="1">
+<li><strong>线性 <span
+class="math inline">\(\mathfrak{G}\)</span>-等变层</strong> <span
+class="math inline">\(B: \mathcal{X}(\Omega, \mathcal{C}) \to
+\mathcal{X}(\Omega&#39;, \mathcal{C}&#39;)\)</span>
+<ul>
+<li><span class="math inline">\(B(\mathfrak{g}.x) =
+\mathfrak{g}.B(x)\)</span></li>
+</ul></li>
+<li><strong>逐点非线性</strong> <span class="math inline">\(\sigma:
+\mathcal{C} \to \mathcal{C}&#39;\)</span>
+<ul>
+<li><span class="math inline">\((\boldsymbol{\sigma}(x))(u) =
+\sigma(x(u))\)</span></li>
+<li>保等变性：若 <span class="math inline">\(B\)</span> 等变，则 <span
+class="math inline">\(\boldsymbol{\sigma} \circ B\)</span> 亦然</li>
+</ul></li>
+<li><strong>局部池化（粗粒化）</strong> <span class="math inline">\(P:
+\mathcal{X}(\Omega, \mathcal{C}) \to \mathcal{X}(\Omega&#39;,
+\mathcal{C})\)</span>，<span class="math inline">\(\Omega&#39; \subseteq
+\Omega\)</span></li>
+<li><strong><span
+class="math inline">\(\mathfrak{G}\)</span>-不变层（全局池化）</strong>
+<span class="math inline">\(A: \mathcal{X}(\Omega, \mathcal{C}) \to
+\mathcal{Y}\)</span>
+<ul>
+<li><span class="math inline">\(A(\mathfrak{g}.x) = A(x)\)</span></li>
+</ul></li>
+</ol>
+<h4 id="最终形式">最终形式</h4>
+<p><span class="math display">\[f = A \circ \boldsymbol{\sigma}_J \circ
+B_J \circ P_{J-1} \circ \cdots \circ P_1 \circ \boldsymbol{\sigma}_1
+\circ B_1\]</span></p>
+<h4 id="关键性质">关键性质</h4>
+<ul>
+<li>等变层的组合仍是等变的（群表示需匹配）</li>
+<li>局部化（增加感受野半径 <span class="math inline">\(r\)</span>
+的邻域）+ 深层组合 → 扩大感受野</li>
+<li>单层局部等变无法捕获长程交互，<strong>深度组合</strong>可以 →
+保持稳定性同时获得表达能力</li>
+<li>池化层实现<strong>尺度分离</strong>先验</li>
+<li>最终全局池化将等变表示折叠为不变输出</li>
+</ul>
+<h4 id="两种设置">两种设置</h4>
+<table>
+<thead>
+<tr>
+<th>设置</th>
+<th>域 <span class="math inline">\(\Omega\)</span></th>
+<th>稳定性需求</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>固定域</td>
+<td>不变</td>
+<td>信号形变稳定性</td>
+<td>图像分类</td>
+</tr>
+<tr>
+<td>可变域</td>
+<td>与信号一起变化</td>
+<td>域形变稳定性</td>
+<td>图分类</td>
+</tr>
+</tbody>
+</table>
+<h4 id="架构-域-对称群对照表">架构 ↔︎ 域 ↔︎ 对称群对照表</h4>
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 30%" />
+<col style="width: 55%" />
+</colgroup>
+<thead>
+<tr>
+<th>架构</th>
+<th>域 <span class="math inline">\(\Omega\)</span></th>
+<th>对称群 <span class="math inline">\(\mathfrak{G}\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CNN</td>
+<td>网格（Grid）</td>
+<td>平移</td>
+</tr>
+<tr>
+<td>Spherical CNN</td>
+<td>球面 / <span class="math inline">\(SO(3)\)</span></td>
+<td>旋转 <span class="math inline">\(SO(3)\)</span></td>
+</tr>
+<tr>
+<td>Intrinsic / Mesh CNN</td>
+<td>流形</td>
+<td>等距 <span class="math inline">\(\mathrm{Iso}(\Omega)\)</span> /
+规范对称 <span class="math inline">\(SO(2)\)</span></td>
+</tr>
+<tr>
+<td>GNN</td>
+<td>图（Graph）</td>
+<td>排列 <span class="math inline">\(\Sigma_n\)</span></td>
+</tr>
+<tr>
+<td>Deep Sets</td>
+<td>集合（Set）</td>
+<td>排列 <span class="math inline">\(\Sigma_n\)</span></td>
+</tr>
+<tr>
+<td>Transformer</td>
+<td>完全图</td>
+<td>排列 <span class="math inline">\(\Sigma_n\)</span></td>
+</tr>
+<tr>
+<td>LSTM</td>
+<td>1D 网格</td>
+<td>时间扭曲</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="核心概念回顾">核心概念回顾</h2>
+<ol type="1">
+<li><strong>维数灾难</strong> → 通用正则性类（Lipschitz,
+Sobolev）指数级失败</li>
+<li><strong>对称性</strong> → 群作用 + 群表示 → 不变性 / 等变性</li>
+<li><strong>形变稳定性</strong> → 从精确群不变到”近似不变”的软化</li>
+<li><strong>尺度分离</strong> → Fourier 全局但不稳定 ↔︎ Wavelet
+局部且稳定</li>
+<li><strong>GDL 蓝图</strong> = 等变层 + 非线性 + 局部池化 +
+全局池化的组合</li>
+</ol>
+<p>三个几何先验（对称性、形变稳定性、尺度分离）→
+一个统一的架构构造程序。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://pyneal.github.io">Pyneal</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://pyneal.github.io/2026/07/03/Geometric-Deep-Learning-Note1/">https://pyneal.github.io/2026/07/03/Geometric-Deep-Learning-Note1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://pyneal.github.io" target="_blank">悟空的小站</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E7%A7%91%E5%AD%A6/">科学</a><a class="post-meta__tags" href="/tags/%E6%95%B0%E5%AD%A6/">数学</a></div><div class="post-share"><div class="social-share" data-image="/img/Geometric%20Deep%20Learning%20Note1.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2026/02/24/SRA-demo/SRA-demo/" title="SpaceRobotAgent Hardware Validation Videos"><img class="cover" src="/img/Fig3_DC_SpaceRobotAgent_Framework.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">SpaceRobotAgent Hardware Validation Videos</div></div><div class="info-2"><div class="info-item-1">Hardware validation videos for three representative FFSR tasks, with trajectory tracking and error evolution plots.</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/me.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Pyneal</div><div class="author-info-description">风会记得一朵花的香</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Pyneal"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Pyneal" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:pyneal04@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来访！图片无法正常显示可以尝试刷新一下</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%87%A0%E4%BD%95%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E8%93%9D%E5%9B%BE"><span class="toc-number">1.</span> <span class="toc-text">几何深度学习蓝图</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BC%95%E8%A8%80introduction"><span class="toc-number">1.1.</span> <span class="toc-text">1. 引言（Introduction）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E7%9A%84%E4%B8%A4%E4%B8%AA%E6%A0%B8%E5%BF%83%E5%8E%9F%E5%88%99"><span class="toc-number">1.1.1.</span> <span class="toc-text">1.1 深度学习的两个核心原则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AB%98%E7%BB%B4%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%9B%B0%E5%A2%83"><span class="toc-number">1.1.2.</span> <span class="toc-text">1.2 高维学习的困境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9D%A5%E8%87%AA-erlangen-%E7%BA%B2%E9%A2%86%E7%9A%84%E5%90%AF%E5%8F%91"><span class="toc-number">1.1.3.</span> <span class="toc-text">1.3 来自 Erlangen 纲领的启发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E4%B9%A6%E8%BE%B9%E7%95%8C"><span class="toc-number">1.1.4.</span> <span class="toc-text">1.4 本书边界</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%AB%98%E7%BB%B4%E5%AD%A6%E4%B9%A0learning-in-high-dimensions"><span class="toc-number">1.2.</span> <span class="toc-text">2. 高维学习（Learning in
+High Dimensions）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%91%E7%9D%A3%E5%AD%A6%E4%B9%A0%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%8C%96"><span class="toc-number">1.2.1.</span> <span class="toc-text">2.1 监督学习的形式化</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E8%AE%BE%E5%AE%9A"><span class="toc-number">1.2.1.1.</span> <span class="toc-text">基本设定</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E7%94%9F%E6%88%90%E5%81%87%E8%AE%BE"><span class="toc-number">1.2.1.2.</span> <span class="toc-text">数据生成假设</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%A6%E4%B9%A0%E9%97%AE%E9%A2%98%E5%8F%82%E6%95%B0%E5%8C%96%E5%87%BD%E6%95%B0%E7%B1%BB"><span class="toc-number">1.2.1.3.</span> <span class="toc-text">学习问题：参数化函数类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8F%92%E5%80%BC%E5%8C%BA%E5%9F%9Finterpolating-regime"><span class="toc-number">1.2.1.4.</span> <span class="toc-text">插值区域（Interpolating
+Regime）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%9B%E5%8C%96%E6%80%A7%E8%83%BD%E7%9A%84%E5%BA%A6%E9%87%8F"><span class="toc-number">1.2.1.5.</span> <span class="toc-text">泛化性能的度量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%8E%E5%BD%A2%E5%BC%8F%E5%8C%96%E5%88%B0%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98"><span class="toc-number">1.2.1.6.</span> <span class="toc-text">从形式化到核心问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%92%E7%BA%B3%E5%81%8F%E7%BD%AE%E4%B8%8E%E5%87%BD%E6%95%B0%E6%AD%A3%E5%88%99%E6%80%A7"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.2 归纳偏置与函数正则性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%8E%E6%8F%92%E5%80%BC%E5%88%B0%E6%9C%89%E6%84%8F%E4%B9%89%E7%9A%84%E6%B3%9B%E5%8C%96"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">从插值到有意义的泛化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%9A%E7%94%A8%E9%80%BC%E8%BF%91%E5%AE%9A%E7%90%86universal-approximation-theorems"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">通用逼近定理（Universal
+Approximation Theorems）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%E9%80%9A%E7%94%A8%E9%80%BC%E8%BF%91-%E6%B2%A1%E6%9C%89%E5%BD%92%E7%BA%B3%E5%81%8F%E7%BD%AE"><span class="toc-number">1.2.2.3.</span> <span class="toc-text">关键洞察：通用逼近 ≠
+没有归纳偏置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%8F%E5%85%B8%E5%87%BD%E6%95%B0%E7%A9%BA%E9%97%B4%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="toc-number">1.2.2.4.</span> <span class="toc-text">经典函数空间中的实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E4%B8%AD%E7%9A%84%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="toc-number">1.2.2.5.</span> <span class="toc-text">神经网络中的复杂度</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E7%A7%8D%E8%A7%86%E8%A7%92%E7%9A%84%E7%BB%9F%E4%B8%80"><span class="toc-number">1.2.2.6.</span> <span class="toc-text">三种视角的统一</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%82%AC%E8%80%8C%E6%9C%AA%E5%86%B3%E7%9A%84%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98"><span class="toc-number">1.2.2.7.</span> <span class="toc-text">悬而未决的核心问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%B4%E6%95%B0%E7%81%BE%E9%9A%BEthe-curse-of-dimensionality"><span class="toc-number">1.2.3.</span> <span class="toc-text">2.3 维数灾难（The Curse of
+Dimensionality）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%8E%E7%BB%B4-vs-%E9%AB%98%E7%BB%B4%E4%B8%80%E4%B8%AA%E6%A0%B9%E6%9C%AC%E6%80%A7%E7%9A%84%E5%88%86%E6%B0%B4%E5%B2%AD"><span class="toc-number">1.2.3.1.</span> <span class="toc-text">低维 vs
+高维：一个根本性的分水岭</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#lipschitz-%E7%B1%BB%E4%B8%80%E4%B8%AA%E5%85%B7%E4%BD%93%E7%9A%84%E8%A7%A3%E5%89%96%E6%A1%88%E4%BE%8B"><span class="toc-number">1.2.3.2.</span> <span class="toc-text">Lipschitz
+类：一个具体的解剖案例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%A0%E4%BD%95%E7%9B%B4%E8%A7%89%E8%B1%A1%E9%99%90%E6%9E%84%E9%80%A0"><span class="toc-number">1.2.3.3.</span> <span class="toc-text">几何直觉：象限构造</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E5%AD%A6%E5%BD%A2%E5%BC%8F%E5%8C%96%E6%9C%80%E5%A4%A7%E5%B7%AE%E5%BC%82maximum-discrepancy"><span class="toc-number">1.2.3.4.</span> <span class="toc-text">数学形式化：最大差异（Maximum
+Discrepancy）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sobolev-%E7%B1%BB%E5%85%89%E6%BB%91%E6%80%A7%E5%81%87%E8%AE%BE%E4%B9%9F%E6%95%91%E4%B8%8D%E4%BA%86"><span class="toc-number">1.2.3.5.</span> <span class="toc-text">Sobolev
+类：光滑性假设也救不了</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E7%9A%84%E5%87%BA%E8%B7%AF%E5%8F%8A%E5%85%B6%E4%BB%A3%E4%BB%B7"><span class="toc-number">1.2.3.6.</span> <span class="toc-text">神经网络的出路——及其代价</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E4%B8%80%E5%81%87%E8%AE%BE%E5%9C%A8%E7%8E%B0%E5%AE%9E%E4%B8%AD%E4%B8%8D%E6%88%90%E7%AB%8B"><span class="toc-number">1.2.3.7.</span> <span class="toc-text">为什么这一假设在现实中不成立</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA%E5%BF%85%E9%A1%BB%E5%AF%BB%E6%89%BE%E6%96%B0%E7%9A%84%E6%AD%A3%E5%88%99%E6%80%A7%E6%9D%A5%E6%BA%90"><span class="toc-number">1.2.3.8.</span> <span class="toc-text">结论：必须寻找新的正则性来源</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%A0%E4%BD%95%E5%85%88%E9%AA%8Cgeometric-priors"><span class="toc-number">1.3.</span> <span class="toc-text">3. 几何先验（Geometric Priors）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%A1%E5%8F%B7%E7%A9%BA%E9%97%B4%E7%9A%84%E6%95%B0%E5%AD%A6%E5%AE%9A%E4%B9%89"><span class="toc-number">1.3.1.</span> <span class="toc-text">3.1 信号空间的数学定义</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%8E%E5%90%91%E9%87%8F%E7%A9%BA%E9%97%B4%E5%88%B0%E4%BF%A1%E5%8F%B7%E7%A9%BA%E9%97%B4"><span class="toc-number">1.3.1.1.</span> <span class="toc-text">从向量空间到信号空间</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E7%9B%B4%E6%8E%A5%E5%A4%84%E7%90%86%E5%90%91%E9%87%8F"><span class="toc-number">1.3.1.2.</span> <span class="toc-text">为什么不直接处理向量？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%A1%E5%8F%B7%E7%A9%BA%E9%97%B4%E7%9A%84%E5%BD%A2%E5%BC%8F%E5%AE%9A%E4%B9%89"><span class="toc-number">1.3.1.3.</span> <span class="toc-text">信号空间的形式定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%91%E9%87%8F%E7%A9%BA%E9%97%B4%E7%BB%93%E6%9E%84"><span class="toc-number">1.3.1.4.</span> <span class="toc-text">向量空间结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%8E%E5%90%91%E9%87%8F%E7%A9%BA%E9%97%B4%E5%88%B0-hilbert-%E7%A9%BA%E9%97%B4"><span class="toc-number">1.3.1.5.</span> <span class="toc-text">从向量空间到 Hilbert 空间</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%A4%E5%A4%A7%E5%87%A0%E4%BD%95%E5%85%88%E9%AA%8C"><span class="toc-number">1.3.1.6.</span> <span class="toc-text">两大几何先验</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E8%B4%AF%E7%A9%BF%E5%85%A8%E4%B9%A6%E7%9A%84%E4%BE%8B%E5%AD%90"><span class="toc-number">1.3.1.7.</span> <span class="toc-text">一个贯穿全书的例子</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E7%A7%B0%E6%80%A7%E8%A1%A8%E7%A4%BA%E4%B8%8E%E4%B8%8D%E5%8F%98%E6%80%A7"><span class="toc-number">1.3.2.</span> <span class="toc-text">3.2 对称性、表示与不变性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%AF%B9%E7%A7%B0%E6%80%A7"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">什么是对称性？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AF%B9%E7%A7%B0%E7%BE%A4symmetry-groups"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">对称群（Symmetry Groups）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E5%85%83%E4%B8%8E-lie-%E7%BE%A4"><span class="toc-number">1.3.2.3.</span> <span class="toc-text">生成元与 Lie 群</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8A%BD%E8%B1%A1%E7%BE%A4-vs-%E5%85%B7%E4%BD%93%E7%BE%A4"><span class="toc-number">1.3.2.4.</span> <span class="toc-text">抽象群 vs 具体群</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BE%A4%E4%BD%9C%E7%94%A8group-action"><span class="toc-number">1.3.2.5.</span> <span class="toc-text">群作用（Group Action）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BE%A4%E8%A1%A8%E7%A4%BAgroup-representation"><span class="toc-number">1.3.2.6.</span> <span class="toc-text">群表示（Group Representation）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%89%E4%B8%AA%E7%A9%BA%E9%97%B4gdl-%E7%9A%84%E6%A0%B8%E5%BF%83%E5%9B%BE%E6%99%AF"><span class="toc-number">1.3.2.7.</span> <span class="toc-text">三个空间：GDL 的核心图景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8D%E5%8F%98%E6%80%A7invariance"><span class="toc-number">1.3.2.8.</span> <span class="toc-text">不变性（Invariance）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AD%89%E5%8F%98%E6%80%A7equivariance"><span class="toc-number">1.3.2.9.</span> <span class="toc-text">等变性（Equivariance）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8D%E5%8F%98%E6%80%A7-vs-%E7%AD%89%E5%8F%98%E6%80%A7%E5%B9%B6%E9%9D%9E%E4%BA%8C%E9%80%89%E4%B8%80"><span class="toc-number">1.3.2.10.</span> <span class="toc-text">不变性 vs 等变性：并非二选一</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BB%85%E6%9C%89%E7%BA%BF%E6%80%A7%E4%B8%8D%E5%8F%98%E9%87%8F%E4%B8%8D%E5%A4%9F"><span class="toc-number">1.3.2.11.</span> <span class="toc-text">为什么仅有线性不变量不够？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E6%9E%84%E4%B8%8E%E8%87%AA%E5%90%8C%E6%9E%84isomorphisms-and-automorphisms"><span class="toc-number">1.3.3.</span> <span class="toc-text">3.3
+同构与自同构（Isomorphisms and Automorphisms）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%AF%B9%E7%A7%B0%E6%80%A7%E5%8F%96%E5%86%B3%E4%BA%8E%E4%BF%9D%E7%95%99%E4%BA%86%E4%BB%80%E4%B9%88%E7%BB%93%E6%9E%84"><span class="toc-number">1.3.3.1.</span> <span class="toc-text">什么是”对称性”取决于保留了什么结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%93%E6%9E%84%E5%B1%82%E6%AC%A1%E4%BB%8E%E7%B2%97%E5%88%B0%E7%BB%86"><span class="toc-number">1.3.3.2.</span> <span class="toc-text">结构层次：从粗到细</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89%E6%8B%A9%E6%AD%A3%E7%A1%AE%E7%9A%84%E5%B1%82%E6%AC%A1%E8%87%B3%E5%85%B3%E9%87%8D%E8%A6%81"><span class="toc-number">1.3.3.3.</span> <span class="toc-text">为什么选择正确的层次至关重要</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%90%E7%BE%A4%E7%94%A8%E6%95%B0%E5%AD%A6%E8%AF%AD%E8%A8%80%E7%BC%96%E7%A0%81%E6%9B%B4%E5%A4%9A%E7%BB%93%E6%9E%84"><span class="toc-number">1.3.3.4.</span> <span class="toc-text">子群：用数学语言编码”更多结构”</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%87%AA%E5%90%8C%E6%9E%84-vs-%E5%90%8C%E6%9E%84%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E5%8C%BA%E5%88%86"><span class="toc-number">1.3.3.5.</span> <span class="toc-text">自同构 vs
+同构：为什么需要区分？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%99%E5%AF%B9-gdl-%E5%BE%88%E9%87%8D%E8%A6%81"><span class="toc-number">1.3.3.6.</span> <span class="toc-text">为什么这对 GDL 很重要？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%A2%E5%8F%98%E7%A8%B3%E5%AE%9A%E6%80%A7deformation-stability"><span class="toc-number">1.3.4.</span> <span class="toc-text">3.4 形变稳定性（Deformation
+Stability）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%B2%BE%E7%A1%AE%E5%AF%B9%E7%A7%B0%E6%80%A7%E7%9A%84%E4%B8%A4%E4%B8%AA%E5%A4%B1%E8%B4%A5%E6%A8%A1%E5%BC%8F"><span class="toc-number">1.3.4.1.</span> <span class="toc-text">精确对称性的两个失败模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BF%A1%E5%8F%B7%E5%BD%A2%E5%8F%98%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="toc-number">1.3.4.2.</span> <span class="toc-text">信号形变稳定性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E5%85%B7%E4%BD%93%E4%BE%8B%E5%AD%90%E5%9B%BE%E5%83%8F%E7%9A%84-dirichlet-%E8%83%BD%E9%87%8F"><span class="toc-number">1.3.4.3.</span> <span class="toc-text">一个具体例子：图像的
+Dirichlet 能量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%9B%BE%E6%99%AFautomega-%E4%B8%AD%E7%9A%84%E7%81%B0%E7%8E%AF"><span class="toc-number">1.3.4.4.</span> <span class="toc-text">核心图景：Aut(\(\Omega\)) 中的”灰环”</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9F%9F%E5%BD%A2%E5%8F%98%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="toc-number">1.3.4.5.</span> <span class="toc-text">域形变稳定性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%8E%E5%BD%A2%E5%8F%98%E7%A8%B3%E5%AE%9A%E6%80%A7%E5%88%B0%E5%B0%BA%E5%BA%A6%E5%88%86%E7%A6%BB"><span class="toc-number">1.3.4.6.</span> <span class="toc-text">从形变稳定性到尺度分离</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%BA%E5%BA%A6%E5%88%86%E7%A6%BBscale-separation"><span class="toc-number">1.3.5.</span> <span class="toc-text">3.5 尺度分离（Scale Separation）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BD%A2%E5%8F%98%E7%A8%B3%E5%AE%9A%E6%80%A7%E8%BF%98%E4%B8%8D%E5%A4%9F"><span class="toc-number">1.3.5.1.</span> <span class="toc-text">形变稳定性还不够</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#fourier-%E5%8F%98%E6%8D%A2%E9%A2%91%E7%8E%87%E4%B8%8E%E5%85%A8%E5%B1%80%E4%B8%8D%E5%8F%98%E9%87%8F"><span class="toc-number">1.3.5.2.</span> <span class="toc-text">Fourier
+变换：频率与全局不变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#fourier-%E7%9A%84%E5%BD%A2%E5%8F%98%E4%B8%8D%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="toc-number">1.3.5.3.</span> <span class="toc-text">Fourier 的形变不稳定性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B0%8F%E6%B3%A2%E4%B8%8E%E5%A4%9A%E5%B0%BA%E5%BA%A6%E8%A1%A8%E7%A4%BA"><span class="toc-number">1.3.5.4.</span> <span class="toc-text">小波与多尺度表示</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B0%8F%E6%B3%A2%E7%9A%84%E5%BD%A2%E5%8F%98%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="toc-number">1.3.5.5.</span> <span class="toc-text">小波的形变稳定性</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B0%BA%E5%BA%A6%E5%88%86%E7%A6%BB%E5%85%88%E9%AA%8C%E4%BB%8E%E7%89%A9%E7%90%86%E5%88%B0%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0"><span class="toc-number">1.3.5.6.</span> <span class="toc-text">尺度分离先验：从物理到机器学习</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%8E%E4%B8%89%E4%B8%AA%E5%85%88%E9%AA%8C%E5%88%B0%E8%93%9D%E5%9B%BE"><span class="toc-number">1.3.5.7.</span> <span class="toc-text">从三个先验到蓝图</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#gdl-%E8%93%9D%E5%9B%BEthe-blueprint"><span class="toc-number">1.3.6.</span> <span class="toc-text">3.6 GDL 蓝图（The Blueprint）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%9B%9B%E4%B8%AA%E6%9E%84%E5%BB%BA%E5%9D%97building-blocks"><span class="toc-number">1.3.6.1.</span> <span class="toc-text">四个构建块（Building Blocks）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%80%E7%BB%88%E5%BD%A2%E5%BC%8F"><span class="toc-number">1.3.6.2.</span> <span class="toc-text">最终形式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%80%A7%E8%B4%A8"><span class="toc-number">1.3.6.3.</span> <span class="toc-text">关键性质</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%A4%E7%A7%8D%E8%AE%BE%E7%BD%AE"><span class="toc-number">1.3.6.4.</span> <span class="toc-text">两种设置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84-%E5%9F%9F-%E5%AF%B9%E7%A7%B0%E7%BE%A4%E5%AF%B9%E7%85%A7%E8%A1%A8"><span class="toc-number">1.3.6.5.</span> <span class="toc-text">架构 ↔︎ 域 ↔︎ 对称群对照表</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5%E5%9B%9E%E9%A1%BE"><span class="toc-number">1.4.</span> <span class="toc-text">核心概念回顾</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/07/03/Geometric-Deep-Learning-Note1/" title="Geometric Deep Learning Note1"><img src="/img/Geometric%20Deep%20Learning%20Note1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Geometric Deep Learning Note1"/></a><div class="content"><a class="title" href="/2026/07/03/Geometric-Deep-Learning-Note1/" title="Geometric Deep Learning Note1">Geometric Deep Learning Note1</a><time datetime="2026-07-02T16:00:00.000Z" title="发表于 2026-07-03 00:00:00">2026-07-03</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/02/24/SRA-demo/SRA-demo/" title="SpaceRobotAgent Hardware Validation Videos"><img src="/img/Fig3_DC_SpaceRobotAgent_Framework.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="SpaceRobotAgent Hardware Validation Videos"/></a><div class="content"><a class="title" href="/2026/02/24/SRA-demo/SRA-demo/" title="SpaceRobotAgent Hardware Validation Videos">SpaceRobotAgent Hardware Validation Videos</a><time datetime="2026-02-23T16:00:00.000Z" title="发表于 2026-02-24 00:00:00">2026-02-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/06/build_blog/" title="一份简短的个人博客搭建指南"><img src="/img/build_blog.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="一份简短的个人博客搭建指南"/></a><div class="content"><a class="title" href="/2026/01/06/build_blog/" title="一份简短的个人博客搭建指南">一份简短的个人博客搭建指南</a><time datetime="2026-01-05T16:00:00.000Z" title="发表于 2026-01-06 00:00:00">2026-01-06</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2025 - 2026 By Pyneal</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"><script>(() => {
+  const loadMathjax = () => {
+    if (!window.MathJax) {
+      window.MathJax = {
+        loader: {
+          load: [
+            // Four font extension packages (optional)
+            //- '[tex]/bbm',
+            //- '[tex]/bboldx',
+            //- '[tex]/dsfont',
+            '[tex]/mhchem'
+          ],
+          paths: {
+            'mathjax-newcm': '[mathjax]/../@mathjax/mathjax-newcm-font',
+
+            //- // Four font extension packages (optional)
+            //- 'mathjax-bbm-extension': '[mathjax]/../@mathjax/mathjax-bbm-font-extension',
+            //- 'mathjax-bboldx-extension': '[mathjax]/../@mathjax/mathjax-bboldx-font-extension',
+            //- 'mathjax-dsfont-extension': '[mathjax]/../@mathjax/mathjax-dsfont-font-extension',
+            'mathjax-mhchem-extension': '[mathjax]/../@mathjax/mathjax-mhchem-font-extension'
+          }
+        },
+        output: {
+          font: 'mathjax-newcm',
+        },
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          tags: 'none',
+          packages: {
+            '[+]': [
+              'mhchem'
+            ]
+          }
+        },
+        chtml: {
+          scale: 1.1
+        },
+        options: {
+          enableMenu: true,
+          menuOptions: {
+            settings: {
+              enrich: false  // Turn off Braille and voice narration text automatic generation
+            }
+          },
+          renderActions: {
+            findScript: [10, doc => {
+              for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+                const display = !!node.type.match(/; *mode=display/)
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+                const text = document.createTextNode('')
+                node.parentNode.replaceChild(text, node)
+                math.start = {node: text, delim: '', n: 0}
+                math.end = {node: text, delim: '', n: 0}
+                doc.math.push(math)
+              }
+            }, '']
+          }
+        }
+      }
+
+      const script = document.createElement('script')
+      script.src = 'https://cdn.jsdelivr.net/npm/mathjax@4.0.0/tex-mml-chtml.min.js'
+      script.id = 'MathJax-script'
+      script.async = true
+      document.head.appendChild(script)
+    } else {
+      MathJax.startup.document.state(0)
+      MathJax.texReset()
+      MathJax.typesetPromise()
+    }
+  }
+
+  btf.addGlobalFn('encrypt', loadMathjax, 'mathjax')
+  window.pjax ? loadMathjax() : window.addEventListener('load', loadMathjax)
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="false" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.6/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
